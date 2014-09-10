@@ -9,6 +9,8 @@
 from flask import Blueprint, request
 
 from crm.services import process, stage, task
+from models.task import Task
+
 from . import route
 
 
