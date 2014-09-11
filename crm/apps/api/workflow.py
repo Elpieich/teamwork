@@ -25,16 +25,23 @@ bp = Blueprint('workflow', __name__, url_prefix='/processes')
 #
 @route(bp, '/')
 def processes():
-    """Regresa una lista con todos los procesos de una empresa"""
-    #return products.all()
-    p = Process.objects()
-
-    return {'processes': p.to_json()}
+    """
+    Regresa una lista con todos los procesos de una empresa
+    """
+    all_process = Process.objects()
+    process_dict = {}
+    count = 0
+    for e in all_process:
+        process_dict[count] = { str(e.id) : e.get_title() }
+        count = count + 1
+    return {'processes': process_dict}
 
 
 @route(bp, '/show/<process_id>')
 def process_detail(process_id):
-    """Regresa una instancia de proceso de una empresa"""
+    """
+    Regresa una instancia de proceso de una empresa
+    """
     detail = Process.objects(id=process_id)
 
     return {'process detail': detail.to_json()}
@@ -44,7 +51,8 @@ def process_detail(process_id):
 def process_update(process_id):
     """Actualiza una instancia de proceso de una empresa"""
     title = request.form['title']
-    Process.objects(id=process_id).update_one(set__title=title)
+    process = Process.objects(id=process_id)
+    process.update(set__title=title)
     p = Process.objects(id=process_id)
 
     return {'process updated': p.to_json()}
@@ -56,68 +64,92 @@ def process_create():
     p = Process()
     p.set_title(request.form['title'])
     p.save()
-    id = str(p.id)
+    id_ = str(p.id)
 
-    return {'process': p.get_title(),
-            'id': id}
+    return {'process': p.get_title(), 'id': id_}
 
 
 @route(bp, '/destroy/<process_id>')
 def process_destroy(process_id):
     """Elimina una instancia de proceso de una empresa"""
-    # return products.get_or_404(product_id)
-    # Process.objects.remove({'_id' : ObjectId(process_id)})
-    return {'processes': 'destroy'}
+    p = Process.objects(id=process_id)
+    p.delete()
+    return {'processes': 'destroyed'}
 
 
 #
 #   CRUD STAGE
 #   ----------
 #
+
+@route(bp, '/stage/<process_id>')
+def stage_list(process_id):
+    """
+    Regresa una lista de stages de proceso
+    """
+    process = Process.objects.get(id=process_id)
+    stages = process.get_stages()
+    all_stages = {}
+    count =  0
+    for e in stages:
+        all_stages[count] = e.to_json()
+        count = count + 1
+    return {'stage detail': all_stages }
+
+
 @route(bp, '/stage/show/<stage_id>')
 def stage_detail(stage_id):
-    """Regresa una instancia de stage de proceso
-    de una empresa"""
+    """
+    Regresa una instancia de stage de proceso
+    de una empresa
+    """
     stage = Stage.objects(id=stage_id)
 
     return {'stage detail': stage.to_json()}
 
 
+@route(bp, '/stage/create/<process_id>', methods=['POST'])
+def stage_create(process_id):
+    """
+    Crea una instancia de stage de proceso de una empresa
+    """
+    process = Process.objects.get(id=process_id)
+    stage = Stage()
+    stage.set_title(request.form['title'])
+    stage.save()
+    process.get_stages().append(stage)
+    process.save()
+
+    return {'stage': stage.to_json()}
+
 @route(bp, '/stage/update/<stage_id>', methods=['POST'])
 def stage_update(stage_id):
-    """Actualiza una instancia de stage de proceso
-    de una empresa"""
+    """
+    Actualiza una instancia de stage de proceso
+    de una empresa
+    """
     title = request.form['title']
     Stage.objects(id=stage_id).update_one(set__title=title)
-    p = Stage.objects(id=stage_id)
+    stage = Stage.objects(id=stage_id)
 
-    return {'stage updated': p.to_json()}
-
-
-@route(bp, '/stage/create', methods=['POST'])
-def stage_create():
-    """Crea una instancia de stage de proceso de una empresa """
-    s = Stage()
-    s.set_title(request.form['title'])
-    s.save()
-    id = str(s.id)
-
-    return {'stage': s.get_title(),
-            'id': id}
+    return {'stage updated': stage.to_json()}
 
 
 @route(bp, '/stage/destroy/<stage_id>')
 def stage_destroy(stage_id):
-    """Elimina una instancia de stage de proceso
-    de una empresa"""
-    # return products.get_or_404(product_id)
-    return {'stage': 'destroy'}
+    """
+    Elimina una instancia de stage de proceso
+    de una empresa
+    """
+    stage = Stage.objects(id=stage_id)
+    stage.delete()
+    return {'stage': stage.to_json()}
 
 
 #
 #   CRUD TASK
 #   ---------
-#
+
 @route(bp, '/task/show/<task_id>')
 def task_detail(task_id):
     """Regresa una instancia de stage de proceso
@@ -141,8 +173,7 @@ def task_create():
     t = Task()
     t.set_description(request.form['description'])
     t.save()
-    return {'task': t.get_description(),
-            'id': t.id}
+    return {'task': t.get_description(), 'id': t.id}
 
 
 @route(bp, '/task/destroy/<task_id>')
