@@ -1,8 +1,8 @@
 # -*- encoding:utf-8 -*-
 
 from crm.core import db
-from .task import TaskTemplate
-from .process import ProcessTemplate
+from task import TaskTemplate, Task
+from process import ProcessTemplate
 
 
 class StageTemplate(db.Document):
@@ -29,3 +29,21 @@ class StageTemplate(db.Document):
 
 class Stage(db.Document, StageTemplate):
     __template__ = db.ReferenceField(StageTemplate)
+    __tasks__ = db.ListField(
+        db.ReferenceField(Task))
+
+    def add_task(self):
+        pass
+
+    def remove_task(self):
+        pass
+
+    def is_finalized(self):
+        pass
+
+    def get_tasks(self):
+        return self.__tasks__
+
+    def set_tasks(self, tasks):
+        self.__tasks__ = tasks
+
