@@ -143,7 +143,7 @@ def stage_destroy(stage_id):
     """
     stage = Stage.objects(id=stage_id)
     stage.delete()
-    return {'stage': stage.to_json()}
+    return {'stage': 'deleted'}
 
 
 #
@@ -167,13 +167,20 @@ def task_update(task_id):
     return {'task': 'update'}
 
 
-@route(bp, '/task/create', methods=['POST'])
-def task_create():
-    """Crea una instancia de stage de proceso de una empresa """
-    t = Task()
-    t.set_description(request.form['description'])
-    t.save()
-    return {'task': t.get_description(), 'id': t.id}
+@route(bp, '/task/create/<stage_id>', methods=['POST'])
+def task_create(stage_id):
+    """
+    Crea una instancia de stage de proceso de una empresa
+    """
+    stage = Stage.objects.get(id=stage_id)
+    task = Task()
+    task.set_description(request.form['description'])
+    task.save()
+
+    stage.get_tasks().append(task)
+    stage.save()
+
+    return {'task': task.to_json()}
 
 
 @route(bp, '/task/destroy/<task_id>')
@@ -181,4 +188,6 @@ def task_destroy(task_id):
     """Elimina una instancia de stage de proceso
     de una empresa"""
     # return products.get_or_404(product_id)
-    return {'task': 'destroy'}
+    task = Task.objects(id=task_id)
+    task.delete()
+    return {'task': 'deleted'}
