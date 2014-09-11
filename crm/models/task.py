@@ -1,7 +1,7 @@
 # -*- encoding:utf-8 -*-
 
 from crm.core import db
-from .stage import StageTemplate
+from stage import StageTemplate
 
 
 class TaskTemplate(db.Document):
@@ -23,3 +23,17 @@ class TaskTemplate(db.Document):
 
 class Task(db.Document, TaskTemplate):
     __template__ = db.ReferenceField(TaskTemplate)
+    __description__ = db.StringField()
+    __completed__ = db.BooleanField()
+
+    def get_description(self):
+        return self.__description__
+
+    def set_description(self, desc):
+        self.__description__ = desc
+
+    def complete_task(self):
+        self.__completed__ = True
+
+    def uncomplete_task(self):
+        self.__completed__ = False
