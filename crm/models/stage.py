@@ -19,9 +19,7 @@ class StageTemplate(db.Document):
     task_templates = db.ListField(
         db.ReferenceField('TaskTemplate'))
 
-    meta = {
-        'allow_inheritance': True
-    }
+    meta = {'allow_inheritance': True }
 
 
 class Stage(db.Document):

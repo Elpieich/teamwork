@@ -1,16 +1,14 @@
 # -*- encoding:utf-8 -*-
 
 from crm.core import db
-from .role import Role
-from .company import Company
 
 
 class User(db.Document):
-    __first_name__ = db.StringField()
-    __last_name__ = db.StringField()
-    __email__ = db.EmailField()
-    __role__ = db.ReferenceField('Role')
-    __company__ = db.ReferenceField('Company')
+    first_name = db.StringField()
+    last_name = db.StringField()
+    email = db.EmailField()
+    role = db.ReferenceField('Role')
+    company = db.ReferenceField('Company')
 
     meta = {'allow_inheritance': True}
 

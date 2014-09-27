@@ -1,6 +1,6 @@
 # -*- encoding:utf-8 -*-
 
-from crm.core import db
+from ..core import db
 
 
 class TaskTemplate(db.Document):
