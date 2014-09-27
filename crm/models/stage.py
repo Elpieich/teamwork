@@ -1,36 +1,44 @@
 # -*- encoding:utf-8 -*-
 
-from crm.core import db
+from ..core import db
+
+
+class StageStatus(db.Document):
+    description = db.StringField(
+        max_length=40,
+        required=True)
 
 
 class StageTemplate(db.Document):
-    __title__ = db.StringField(
+    name = db.StringField(
         max_length=40,
         required=True)
-    __process_template__ = db.ReferenceField('ProcessTemplate')
-    __task_templates__ = db.ListField(
+    description = db.StringField(
+        max_length=40)
+    process_template = db.ReferenceField('ProcessTemplate')
+    task_templates = db.ListField(
         db.ReferenceField('TaskTemplate'))
 
     meta = {
         'allow_inheritance': True
     }
 
-    def get_name(self):
-        return self.__name__
-
-    def get_process(self):
-        return self.__process__
-
-    def get_tasks(self):
-        return self.__tasks__
-
 
 class Stage(db.Document):
-    __title__ = db.StringField(
+    name = db.StringField(
         max_length=40,
         required=True)
-    __process__ = db.ReferenceField('Process')
-    __tasks__ = db.ListField(
+    description = db.StringField(
+        max_length=40)
+    template = db.ReferenceField('StageTemplate')
+    process = db.ReferenceField('Process')
+    sub = db.ReferenceField('Process')
+    template = db.ReferenceField('StageTemplate')
+    manager = db.ReferenceField('User')
+    status = db.ReferenceField('StageStatus')
+    logic = db.ListField()
+    variables = db.ListField()
+    initial_date = db.DateTimeField()
+    final_date = db.DateTimeField()
+    tasks = db.ListField(
         db.ReferenceField('Task'))
-    __template__ = db.ReferenceField('StageTemplate')
-    __manager__ = db.ReferenceField('User')
