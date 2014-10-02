@@ -50,3 +50,4 @@ class HTTPMethodOverrideMiddleware(object):
             environ['CONTENT_LENGTH'] = '0'
 
         return self.app(environ, start_response)
+        

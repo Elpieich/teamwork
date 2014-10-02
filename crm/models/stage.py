@@ -1,15 +1,16 @@
 # -*- encoding:utf-8 -*-
 
 from ..core import db
+from ..helpers import JsonSerializer
 
 
-class StageStatus(db.Document):
+class StageStatus(JsonSerializer, db.Document):
     description = db.StringField(
         max_length=40,
         required=True)
 
 
-class StageTemplate(db.Document):
+class StageTemplate(JsonSerializer, db.Document):
     name = db.StringField(
         max_length=40,
         required=True)
@@ -22,7 +23,7 @@ class StageTemplate(db.Document):
     meta = {'allow_inheritance': True }
 
 
-class Stage(db.Document):
+class Stage(JsonSerializer, db.Document):
     name = db.StringField(
         max_length=40,
         required=True)
@@ -32,7 +33,7 @@ class Stage(db.Document):
     process = db.ReferenceField('Process')
     sub = db.ReferenceField('Process')
     template = db.ReferenceField('StageTemplate')
-    manager = db.ReferenceField('User')
+    #manager = db.ReferenceField('User')
     status = db.ReferenceField('StageStatus')
     logic = db.ListField()
     variables = db.ListField()

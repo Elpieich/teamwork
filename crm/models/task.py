@@ -1,9 +1,10 @@
 # -*- encoding:utf-8 -*-
 
 from ..core import db
+from ..helpers import JsonSerializer
 
 
-class TaskTemplate(db.Document):
+class TaskTemplate(JsonSerializer, db.Document):
     description = db.StringField(
         max_length=140,
         required=True)
@@ -14,7 +15,7 @@ class TaskTemplate(db.Document):
     }
 
 
-class Task(TaskTemplate):
+class Task(JsonSerializer, db.Document):
     description = db.StringField(
         max_length=140,
         required=True)
@@ -22,6 +23,6 @@ class Task(TaskTemplate):
     stage = db.ReferenceField('Stage')
     completed = db.BooleanField(
         default=False)
-    completed_by = db.ReferenceField('User')
-    manager = db.ReferenceField('User')
+    #completed_by = db.ReferenceField('User')
+    #manager = db.ReferenceField('User')
     progress = db.IntField()

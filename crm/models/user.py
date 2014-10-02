@@ -7,8 +7,8 @@ class User(db.Document):
     first_name = db.StringField()
     last_name = db.StringField()
     email = db.EmailField()
-    role = db.ReferenceField('Role')
-    company = db.ReferenceField('Company')
+    #role = db.ReferenceField('Role')
+    #company = db.ReferenceField('Company')
 
     meta = {'allow_inheritance': True}
 

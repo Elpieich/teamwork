@@ -6,16 +6,14 @@
     Workflow endpoints
 """
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request
 
-from crm.services import process, stage, task
-from crm.models import Process, Stage, Task
-import json
-
+from crm.services.process import ProcessService
 from . import route
 
 
 bp = Blueprint('workflow', __name__, url_prefix='/processes')
+process = ProcessService()
 
 
 @route(bp, '/')
@@ -23,14 +21,7 @@ def processes():
     """
     Regresa una lista con todos los procesos de una empresa
     """
-    all_process = Process.objects()
-    process_dict = {}
-    count = 0
-    for e in all_process:
-        process_dict[count] = { str(e.id) : e.get_title() }
-        count = count + 1
-
-    return {'processes': process_dict}
+    return process.all()
 
 
 @route(bp, '/show/<process_id>')

@@ -6,12 +6,15 @@
 from werkzeug.serving import run_simple
 from werkzeug.wsgi import DispatcherMiddleware
 
-from crm.apps import website, api
+from crm.apps.website import Website
+from crm.apps.api import API
 
+api = API()
+website = Website()
 
 application = DispatcherMiddleware(
-    website.create_app(),
-    {'/api/1': api.create_app()})
+    website.get_app(),
+    {'/api/1': api.get_app()})
 
 if __name__ == "__main__":
     run_simple(

@@ -1,21 +1,22 @@
 # -*- encoding:utf-8 -*-
 
 from ..core import db
+from ..helpers import JsonSerializer
 
 
-class ProcessType(db.Document):
+class ProcessType(JsonSerializer, db.Document):
     description = db.StringField(
         max_length=140,
         required=True)
     
 
-class ProcessStatus(db.Document):
+class ProcessStatus(JsonSerializer, db.Document):
     description = db.StringField(
         max_length=40,
         required=True)
 
 
-class ProcessTemplate(db.Document):
+class ProcessTemplate(JsonSerializer, db.Document):
     name = db.StringField(
         max_length=40,
         required=True)
@@ -23,7 +24,7 @@ class ProcessTemplate(db.Document):
         max_length=140,
         required=True)
     type = db.ReferenceField('ProcessType')
-    company = db.ReferenceField('Company')
+    #company = db.ReferenceField('Company')
     stage_templates = db.ListField(
         db.ReferenceField('StageTemplate'))
 
@@ -32,7 +33,7 @@ class ProcessTemplate(db.Document):
     }
 
 
-class Process(db.Document):
+class Process(JsonSerializer, db.Document):
     name = db.StringField(
         max_length=40,
         required=True)
@@ -40,8 +41,8 @@ class Process(db.Document):
         max_length=140,
         required=True)
     template = db.ReferenceField('ProcessTemplate')
-    team = db.ReferenceField('Team')
-    manager = db.ReferenceField('User')
+    #team = db.ReferenceField('Team')
+    #manager = db.ReferenceField('User')
     status = db.ReferenceField('ProcessStatus')
     stages = db.ListField(
         db.ReferenceField('Stage'))

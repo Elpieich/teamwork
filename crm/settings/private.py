@@ -8,9 +8,10 @@ SECRET_KEY = '\xf9\x96\xcf\x1e.{\xc1\xb8\nM\xe7@\xad\xbc\x88PG%\x961A\x14\xd7g'
 
 MONGODB_SETTINGS = {
     'db': 'crm_dev',
-    'username': 'crm_dev',
+    'username': 'grevych',
     'password': 'lschssntbz',
-    'host': 'ds035310.mongolab.com:35310/crm_dev'
+    'host': 'ds035310.mongolab.com',
+    'port': 35310
 }
 
 DEV_MONGODB_DB = ''
