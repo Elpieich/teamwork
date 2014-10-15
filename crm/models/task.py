@@ -4,16 +4,6 @@ from ..core import db
 from ..helpers import JsonSerializer
 
 
-class TaskTemplate(JsonSerializer, db.Document):
-    description = db.StringField(
-        max_length=140,
-        required=True)
-    stage_template = db.ReferenceField('StageTemplate')
-
-    meta = {
-        'allow_inheritance': True
-    }
-
 
 class Task(JsonSerializer, db.Document):
     description = db.StringField(

@@ -4,26 +4,7 @@ from ..core import db
 from ..helpers import JsonSerializer
 
 
-class StageStatus(JsonSerializer, db.Document):
-    description = db.StringField(
-        max_length=40,
-        required=True)
-
-
-class StageTemplate(JsonSerializer, db.Document):
-    name = db.StringField(
-        max_length=40,
-        required=True)
-    description = db.StringField(
-        max_length=40)
-    process_template = db.ReferenceField('ProcessTemplate')
-    task_templates = db.ListField(
-        db.ReferenceField('TaskTemplate'))
-
-    meta = {'allow_inheritance': True }
-
-
-class Stage(JsonSerializer, db.Document):
+class Step(JsonSerializer, db.Document):
     name = db.StringField(
         max_length=40,
         required=True)

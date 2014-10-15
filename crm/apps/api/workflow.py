@@ -8,12 +8,12 @@
 
 from flask import Blueprint, request
 
-from crm.services.process import ProcessService
+#from crm.services import process, stage, task
 from . import route
 
 
 bp = Blueprint('workflow', __name__, url_prefix='/processes')
-process = ProcessService()
+
 
 
 @route(bp, '/')
