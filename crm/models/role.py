@@ -5,8 +5,8 @@ from .permission import Permission
 
 
 class Role(db.Document):
-    id = db.IntField(primary_key=True, required=True)
-    name = db.StringField()
+    name = db.StringField(required=True)
+    description = db.StringField(required=True)
     permissions = db.ListField(db.ReferenceField(Permission))
 
     def get_id(self):
@@ -20,6 +20,15 @@ class Role(db.Document):
 
     def set_name(self, name):
         self.name = name
+
+    def get_description(self):
+        return self.description
+
+    def set_description(self, desc):
+        self.description = desc
+
+    def get_permissions(self):
+        return self.permissions
 
     def add_permission(self):
         pass

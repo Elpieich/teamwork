@@ -4,15 +4,8 @@ from crm.core import db
 
 
 class Permission(db.Document):
-    id = db.IntField(primary_key=True, required=True)
-    name = db.StringField()
-    description = db.StringField()
-
-    def get_id(self):
-        return self.id
-
-    def set_id(self, id):
-        self.id = id
+    name = db.StringField(required=True)
+    description = db.StringField(required=True)
 
     def get_name(self):
         return self.name

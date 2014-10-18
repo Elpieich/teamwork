@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+
+{% block head %}
+    {{ super() }}
+{% endblock %}
+
+{% block title %} Roles {% endblock %}
+
+{% block sidebar %}
+        <div class="col-sm-3 col-md-2 sidebar">
+          <ul class="nav nav-sidebar">
+            <li><a href="http://localhost:5000/admin/companies">Companies</a></li>
+          </ul>
+          <ul class="nav nav-sidebar">
+            <li><a href="http://localhost:5000/admin/users">Users</a></li><li>
+            <li class="active"><a href="http://localhost:5000/admin/roles">Roles</a></li>
+            <li><a href="http://localhost:5000/admin/permissions">Permissions</a></li>
+          </ul>
+        </div>
+{% endblock %}
+
+{% block content %}
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+          <h1 class="page-header"> Roles </h1>
+          <div class="row">
+            <div class="col-md-2">
+              <button type="button" class="btn btn-primary" id="btn-new">
+                  <span class="glyphicon glyphicon-plus"></span>
+              </button>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-striped" id="results-table">
+              <thead>
+                <tr>
+                  <th>id</th>
+                  <th>Name</th>
+                  <th>Description</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for role in roles %}
+                <tr id="tr-{{ role.id }}">
+                  <td class="id">{{ role.id }}</td>
+                  <td id="td-role-name-{{ role.id }}">{{ role.get_name() }}</td>
+                  <td id="td-role-desc-{{ role.id }}">{{ role.get_description() }}</td>
+                  <td>
+                    <button class="btn btn-link" name="btn-edit" oid="{{ role.id }}">
+                      <span class="glyphicon glyphicon-pencil"></span>
+                    </button>
+                    <button class="btn btn-link" name="btn-minus" oid="{{ role.id }}">
+                      <span class="glyphicon glyphicon-minus"></span>
+                    </button>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+{% endblock %}
+
+{% block editmodal %}
+    {{ super() }}
+{% endblock %}
+
+{% block editModalTitle%} Role {% endblock %}
+
+{% block editModalBody %}
+            <div class="modal-body">
+              <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" class="form-control" id="name" placeholder="Name" name="name">
+                <label for="description">Description</label>
+                <input type="text" class="form-control" id="description" placeholder="Description" name="description">
+              </div>
+              <div class="form-group">
+                <label for="mselect">Add permissions</label>
+                <select multiple="multiple" id="mselect" name="mselect">
+                  {% for permission in permissions %}
+                    <option value='{{ permission.id }}'>{{ permission.get_name() }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+{% endblock %}
+
+{% block deletemodal %}
+    {{ super() }}
+{% endblock %}
+
+{% block deleteModalTitle%} Role {% endblock %}
+
+{% block deleteModalMsg%} Are you sure you want to delete the selected role? {% endblock %}
+
+{% block another_js %}
+    <script type="text/javascript">
+        $( document ).ready( function() {
+            var url = 'http://localhost:5000/admin/roles';
+            var deleteId = '';
+            var editId = '-1';
+            var listPermissions = {};
+
+            /* Get role to edit */
+            $( '#results-table' ).on( 'click', 'tr td button[name=btn-edit]', function() {
+                var name, description;
+
+                editId = $( this ).attr( 'oid' );
+
+                $.ajax({
+                    type: 'GET',
+                    url: url.concat('/' + editId),
+                    success: function ( data ) {
+                        var json = $.parseJSON( data );
+
+                        name = json[ 'name' ];
+                        description = json[ 'description'];
+
+                        $( '#name').val( name );
+                        $( '#description' ).val( description );
+                        $( '#editModal' ).modal( 'show' );
+                    }
+                });
+            });
+
+            $( '#btn-save' ).click( function(){
+                var name, description;
+
+                name = $( '#name' ).val();
+                description = $( '#description' ).val();
+
+
+                if( editId == '-1' ){
+                /* Create new role */
+
+                    $.ajax({
+                        type: 'POST',
+                        url: url,
+                        contentType: 'application/json; charset=UTF-8',
+                        data: JSON.stringify({
+                            name: name,
+                            description: description,
+                            permission: JSON.stringify(listPermissions)
+                        }),
+                        success: function ( data ) {
+                            var id, buttons, tr, json = $.parseJSON( data );
+
+                            id = json['_id'];
+                            name = json[ 'name' ];
+                            description = json[ 'description' ];
+                            buttons = '<td>' +
+                                '<button class="btn btn-link" name="btn-edit" oid="' + id['$oid'] + '">' +
+                                    '<span class="glyphicon glyphicon-pencil"></span>' +
+                                '</button>' +
+                                '<button class="btn btn-link" name="btn-minus" oid="'+ id['$oid'] + '">' +
+                                      '<span class="glyphicon glyphicon-minus"></span>' +
+                                '</button></td>';
+                            tr = '<tr id=tr-' + id['$oid'] + '>' +
+                                '<td>' + id['$oid'] + '</td>' +
+                                '<td id="td-role-name-'+ id['$oid'] +'">' + name + '</td>' +
+                                '<td id="td-role-desc-'+ id['$oid'] +'">' + description + '</td>' +
+                                buttons + '</tr>';
+                            /* Add row to the table */
+                            $('#results-table tr:last').after(tr);
+                            $( '#editModal' ).modal( 'hide' );
+                            listPermissions = {};
+                        }
+                    });
+
+                } else {
+                /* Save edited role */
+                    $.ajax({
+                        type: 'POST',
+                        url: url.concat( '/' + editId ),
+                        contentType: 'application/json; charset=UTF-8',
+                        data: JSON.stringify({ name: name, description: description }),
+                        success: function ( data ) {
+                            // Update row values
+                            $( '#td-role-name-' + editId ).html( name );
+                            $( '#td-role-desc-' + editId ).html( description );
+                            $( '#editModal' ).modal( 'hide' );
+                        }
+                    });
+                }
+            });
+
+            /* Show edit-modal */
+            $( '#btn-new' ).click( function(){
+                $( '#editModal' ).modal( 'show' );
+            });
+
+            /* Delete edit-modal values when is hidding */
+            $('#editModal').on('hidden.bs.modal', function (e) {
+                $( '#name').val('');
+                $( '#description' ).val('');
+                editId = '-1';
+            });
+
+            /* Get role to delete */
+            $( '#results-table' ).on( 'click', 'tr td button[name=btn-minus]', function() {
+                // Only show delete modal
+                deleteId = $( this ).attr( 'oid' );
+                $( '#deleteModal' ).modal( 'show' );
+            });
+
+            /* Delete role */
+            $( '#btn-delete' ).click( function(){
+                $.ajax({
+                    type: 'DELETE',
+                    url: url.concat( '/' + deleteId ),
+                    success: function ( data ) {
+                        $( '#tr-' + deleteId ).remove();
+                        $( '#deleteModal' ).modal( 'hide' );
+                        deleteId = '';
+                    }
+                });
+            });
+
+
+            /* Activate multiselect*/
+            $('#mselect').multiSelect({
+                    afterSelect: function(value){
+                    listPermissions[''+value] = true;
+                    //console.log(listPermissions);
+                },
+                    afterDeselect: function(value){
+                    listPermissions[''+value] = false;
+
+                }
+});
+
+        });
+    </script>
+{% endblock %}
