@@ -30,11 +30,23 @@ class Role(db.Document):
     def get_permissions(self):
         return self.permissions
 
-    def add_permission(self):
-        pass
+    def add_permissions(self, perms):
+        """
+            Get all the permissions
+        
+            perms: json object
+        """
+        
+        # Clean list
+        self.permissions[:] = []
 
-    def remove_permission(self):
-        pass
+        for k in perms:
+            if perms[k]:
+                p_aux = Permission.objects.get(id=k)#.first()
+                self.permissions.append(p_aux)
+        # Refresh role
+        self.save()
+
 
     def has_permission(self):
         pass

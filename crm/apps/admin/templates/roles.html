@@ -104,7 +104,7 @@
 
             /* Get role to edit */
             $( '#results-table' ).on( 'click', 'tr td button[name=btn-edit]', function() {
-                var name, description;
+                var name, description, perms;
 
                 editId = $( this ).attr( 'oid' );
 
@@ -116,6 +116,8 @@
 
                         name = json[ 'name' ];
                         description = json[ 'description'];
+                        perms =  json [ 'permissions' ];
+                        selectPermissions( perms );
 
                         $( '#name').val( name );
                         $( '#description' ).val( description );
@@ -141,7 +143,7 @@
                         data: JSON.stringify({
                             name: name,
                             description: description,
-                            permission: JSON.stringify(listPermissions)
+                            permissions: JSON.stringify(listPermissions)
                         }),
                         success: function ( data ) {
                             var id, buttons, tr, json = $.parseJSON( data );
@@ -162,7 +164,7 @@
                                 '<td id="td-role-desc-'+ id['$oid'] +'">' + description + '</td>' +
                                 buttons + '</tr>';
                             /* Add row to the table */
-                            $('#results-table tr:last').after(tr);
+                            $('#results-table tr:last').after( tr );
                             $( '#editModal' ).modal( 'hide' );
                             listPermissions = {};
                         }
@@ -174,7 +176,11 @@
                         type: 'POST',
                         url: url.concat( '/' + editId ),
                         contentType: 'application/json; charset=UTF-8',
-                        data: JSON.stringify({ name: name, description: description }),
+                        data: JSON.stringify({ 
+                            name: name,
+                            description: description,
+                            permissions: JSON.stringify(listPermissions)
+                        }),
                         success: function ( data ) {
                             // Update row values
                             $( '#td-role-name-' + editId ).html( name );
@@ -194,6 +200,7 @@
             $('#editModal').on('hidden.bs.modal', function (e) {
                 $( '#name').val('');
                 $( '#description' ).val('');
+                $( '#mselect' ).multiSelect( 'deselect_all' );
                 editId = '-1';
             });
 
@@ -218,17 +225,26 @@
             });
 
 
-            /* Activate multiselect*/
-            $('#mselect').multiSelect({
-                    afterSelect: function(value){
+            /* Activate multiselect. Selecting logic */
+            $( '#mselect' ).multiSelect({
+                    afterSelect: function( value ){
                     listPermissions[''+value] = true;
-                    //console.log(listPermissions);
                 },
-                    afterDeselect: function(value){
+                    afterDeselect: function( value ){
                     listPermissions[''+value] = false;
-
                 }
-});
+            });
+
+            /* Select the actual role permissions on the multiselect */ 
+            function selectPermissions ( perms ) {
+                var id = '';
+
+                for (var i = 0; i < perms.length; i++) {
+                    
+                    id = perms[i]['$oid'].toString()
+                    $( '#mselect' ).multiSelect( 'select', id );
+                };
+            }
 
         });
     </script>
