@@ -1,33 +1,22 @@
 # -*- encoding:utf-8 -*-
 
 from crm.core import db
-from .sale import Sale
-from .team_member import TeamMember
-from .team_leader import TeamLeader
+# from .sale import Sale
+# from .team_member import TeamMember
 
 
 class Team(db.Document):
-    __id__ = db.IntField(
-        primary_key=True,
-        required=True)
-    __name__ = db.StringField()
-    __team_members__ = db.ListReference(
-        db.FieldReference(TeamMember))
-    __team_leader__ = db.ReferenceField(TeamLeader)
-    __sales__ = db.ListReference(
-        db.FieldReference(Sale))
+    name = db.StringField()
+    # team_members = db.ListReference(db.FieldReference(TeamMember))
+    # team_leader = db.ReferenceField(TeamMember)
+    # sales = db.ListReference(db.FieldReference(Sale))
 
-    def get_id(self):
-        return self.__id__
-
-    def set_id(self, id):
-        self.__id__ = id
 
     def get_name(self):
-        return self.__name__
+        return self.name
 
     def set_name(self, name):
-        self.__name__ = name
+        self.name = name
 
     def add_team_member(self):
         pass
@@ -39,10 +28,10 @@ class Team(db.Document):
         return self.__team_members__
 
     def set_team_leader(self, team_leader):
-        self.__team_leader__ = team_leader
+        pass
 
     def get_team_leader(self):
-        return self.__team_leader__
+        pass
 
     def remove_team_leader(self):
         pass

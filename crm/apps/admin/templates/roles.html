@@ -12,7 +12,7 @@
             <li><a href="http://localhost:5000/admin/companies">Companies</a></li>
           </ul>
           <ul class="nav nav-sidebar">
-            <li><a href="http://localhost:5000/admin/users">Users</a></li><li>
+            <li><a href="http://localhost:5000/admin/users">API Admin Users</a></li>
             <li class="active"><a href="http://localhost:5000/admin/roles">Roles</a></li>
             <li><a href="http://localhost:5000/admin/permissions">Permissions</a></li>
           </ul>
@@ -135,7 +135,8 @@
 
                 if( editId == '-1' ){
                 /* Create new role */
-
+                console.log('list of permissions for this new role');
+                console.log(listPermissions);
                     $.ajax({
                         type: 'POST',
                         url: url,
@@ -166,12 +167,13 @@
                             /* Add row to the table */
                             $('#results-table tr:last').after( tr );
                             $( '#editModal' ).modal( 'hide' );
-                            listPermissions = {};
                         }
                     });
 
                 } else {
                 /* Save edited role */
+                console.log('list of permissions for this edited role');
+                console.log(listPermissions);
                     $.ajax({
                         type: 'POST',
                         url: url.concat( '/' + editId ),
@@ -225,14 +227,20 @@
             });
 
 
-            /* Activate multiselect. Selecting logic */
+            /* Activate multiselect. Selecting/Deselecting logic */
             $( '#mselect' ).multiSelect({
-                    afterSelect: function( value ){
-                    listPermissions[''+value] = true;
+                afterSelect: function( arrValues ){
+                    listPermissions[''+arrValues[0]] = true;
                 },
-                    afterDeselect: function( value ){
-                    listPermissions[''+value] = false;
-                }
+                afterDeselect: function( arrValues ){
+                    if(arrValues != null){
+                        for (var i = 0; i < arrValues.length; i++) {
+                                listPermissions[''+arrValues[i]] = false;
+                        }
+                    }
+                },
+                selectableHeader: "<div class='bg-primary'><p>Selectable items</p></div>",
+                selectionHeader: "<div class='bg-primary'><p>Selected items</p></div>"
             });
 
             /* Select the actual role permissions on the multiselect */ 
@@ -240,8 +248,7 @@
                 var id = '';
 
                 for (var i = 0; i < perms.length; i++) {
-                    
-                    id = perms[i]['$oid'].toString()
+                    id = perms[i]['$oid'].toString();
                     $( '#mselect' ).multiSelect( 'select', id );
                 };
             }

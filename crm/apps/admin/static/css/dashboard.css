@@ -111,3 +111,7 @@ body {
 .right {
   float: right;
 }
+
+.bg-primary p {
+   text-align: center;
+}

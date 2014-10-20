@@ -9,14 +9,33 @@
 <!-- Latest compiled and minified CSS -->
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
 <!-- Custom styles for the Admin -->
-<link href="static/css/dashboard.css" rel="stylesheet">
-<link href="static/css/multi-select.css" rel="stylesheet" type="text/css" media="screen">
+<link href="{{ url_for('static', filename='css/dashboard.css') }}" rel="stylesheet" type="text/css">
+<link href="{{ url_for('static', filename='css/login.css') }}" rel="stylesheet" type="text/css">
+<link href="{{ url_for('static', filename='css/multi-select.css') }}" rel="stylesheet" type="text/css" media="screen">
 <title>{% block title %}{% endblock %}</title>
 </head>
 {% endblock %}
 
 <body>
-    {% include 'navbar.html' %}
+    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="http://localhost:5000/admin/companies">API Admin</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="#">Help</a></li>
+            <li><a href="#">Log out</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
     <div class="container-fluid">
         <div class="row">
         {% block sidebar %}{% endblock %}
@@ -70,9 +89,8 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-    <script src="http://getbootstrap.com/assets/js/docs.min.js"></script>
     <!-- Admin javascript -->
-    <script src="static/js/jquery.multi-select.js"></script>
+    <script src="{{ url_for('static', filename='js/jquery.multi-select.js') }}"></script>
 {% endblock %}
 
 {% block another_js %}{% endblock %}

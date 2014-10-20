@@ -9,12 +9,6 @@ class Role(db.Document):
     description = db.StringField(required=True)
     permissions = db.ListField(db.ReferenceField(Permission))
 
-    def get_id(self):
-        return self.id
-
-    def set_id(self, id):
-        self.id = id
-
     def get_name(self):
         return self.name
 

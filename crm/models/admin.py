@@ -5,14 +5,14 @@ from .user import User
 from .team import Team
 
 
-class Admin(db.Document, User):
+class Admin(User):
 
-    teams = db.ListReference(db.ReferenceFiedl(Team))
+    teams = db.ListField(db.ReferenceField(Team))
 
-    def add_team(self):
+    def add_team(self, team):
         pass
 
-    def remove_team(self):
+    def remove_team(self, team):
         pass
 
     def get_teams(self):

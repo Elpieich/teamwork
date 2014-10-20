@@ -4,24 +4,24 @@
     {{ super() }}
 {% endblock %}
 
-{% block title %} Permissions {% endblock %}
+{% block title %} Companies {% endblock %}
 
 {% block sidebar %}
         <div class="col-sm-3 col-md-2 sidebar">
           <ul class="nav nav-sidebar">
-            <li><a href="http://localhost:5000/admin/companies">Companies</a></li>
+            <li class="active"><a href="http://localhost:5000/admin/companies">Companies</a></li>
           </ul>
           <ul class="nav nav-sidebar">
             <li><a href="http://localhost:5000/admin/users">API Admin Users</a></li>
             <li><a href="http://localhost:5000/admin/roles">Roles</a></li>
-            <li class="active"><a href="http://localhost:5000/admin/permissions">Permissions</a></li>
+            <li><a href="http://localhost:5000/admin/permissions">Permissions</a></li>
           </ul>
         </div>
 {% endblock %}
 
 {% block content %}
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-          <h1 class="page-header"> Permissions </h1>
+          <h1 class="page-header"> Companies </h1>
           <div class="row">
             <div class="col-md-2">
               <button type="button" class="btn btn-primary" id="btn-new">
@@ -35,21 +35,23 @@
                 <tr>
                   <th>id</th>
                   <th>Name</th>
-                  <th>Description</th>
+                  <th>Direction</th>
+                  <th>Administrator</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {% for permission in permissions %}
-                <tr id="tr-{{ permission.id }}">
-                  <td class="id">{{ permission.id }}</td>
-                  <td id="td-perm-name-{{ permission.id }}">{{ permission.get_name() }}</td>
-                  <td id="td-perm-desc-{{ permission.id }}">{{ permission.get_description() }}</td>
+                {% for company in companies %}
+                <tr id="tr-{{ company.id }}">
+                  <td class="id">{{ company.id }}</td>
+                  <td id="td-comp-name-{{ company.id }}">{{ company.get_name() }}</td>
+                  <td id="td-comp-dir-{{ company.id }}">{{ company.get_direction() }}</td>
+                  <td id="td-comp-adname-{{ company.id }}">{{ company.get_admin().name }}</td>
                   <td>
-                    <button class="btn btn-link" name="btn-edit" oid="{{ permission.id }}">
+                    <button class="btn btn-link" name="btn-edit" oid="{{ company.id }}">
                       <span class="glyphicon glyphicon-pencil"></span>
                     </button>
-                    <button class="btn btn-link" name="btn-minus" oid="{{ permission.id }}">
+                    <button class="btn btn-link" name="btn-minus" oid="{{ company.id }}">
                       <span class="glyphicon glyphicon-minus"></span>
                     </button>
                   </td>
@@ -65,15 +67,21 @@
     {{ super() }}
 {% endblock %}
 
-{% block editModalTitle%} Permission {% endblock %}
+{% block editModalTitle%} Company {% endblock %}
 
 {% block editModalBody %}
             <div class="modal-body">
               <div class="form-group">
                 <label for="name">Name</label>
                 <input type="text" class="form-control" id="name" placeholder="Name" name="name">
-                <label for="description">Description</label>
-                <input type="text" class="form-control" id="description" placeholder="Description" name="description">
+                <label for="direction">Direction</label>
+                <input type="text" class="form-control" id="direction" placeholder="Direction" name="direction">
+              </div>
+                <div class="form-group">
+                <label for="name">Administrator name</label>
+                <input type="text" class="form-control" id="admin-name" placeholder="Administrator name" name="admin-name">
+                <label for="admin-email">Email</label>
+                <input type="text" class="form-control" id="admin-email" placeholder="E-mail" name="admin-email">
               </div>
             </div>
 {% endblock %}
@@ -82,20 +90,22 @@
     {{ super() }}
 {% endblock %}
 
-{% block deleteModalTitle%} Permissions {% endblock %}
+{% block deleteModalTitle%} Companies {% endblock %}
 
-{% block deleteModalMsg%} Are you sure you want to delete the selected permission? {% endblock %}
+{% block deleteModalMsg%}
+    Are you sure you want to delete the selected company?
+    This action also delete company administrator
+{% endblock %}
 
 {% block another_js %}
     <script type="text/javascript">
         $( document ).ready( function() {
-            var url = 'http://localhost:5000/admin/permissions';
+            var url = 'http://localhost:5000/admin/companies';
             var deleteId = '';
             var editId = '-1';
 
-            /* Get permission to edit */
+            /* Get company to edit */
             $( '#results-table' ).on( 'click', 'tr td button[name=btn-edit]', function() {
-                var name, description;
 
                 editId = $( this ).attr( 'oid' );
 
@@ -105,36 +115,44 @@
                     success: function ( data ) {
                         var json = $.parseJSON( data );
 
-                        name = json[ 'name' ];
-                        description = json[ 'description'];
-
-                        $( '#name').val( name );
-                        $( '#description' ).val( description );
+                        $( '#name' ).val( json[ 'name' ] );
+                        $( '#direction' ).val( json[ 'direction'] );
+                        $( '#admin-name' ).val( json[ 'admin-name' ] );
+                        $( '#admin-email' ).val( json[ 'admin-email' ] );
                         $( '#editModal' ).modal( 'show' );
                     }
                 });
             });
 
             $( '#btn-save' ).click( function(){
-                var name, description;
+                var name, direction, admin_name, admin_email;
 
                 name = $( '#name' ).val();
-                description = $( '#description' ).val();
+                direction = $( '#direction' ).val();
+                admin_name = $( '#admin-name').val();
+                admin_email = $( '#admin-email').val();
 
+                var data_j = {
+                    name: name,
+                    direction: direction,
+                    admin_name: admin_name,
+                    admin_email: admin_email
+                };
 
                 if( editId == '-1' ){
-                /* Create new permission */
+                /* Create new company */
                     $.ajax({
                         type: 'POST',
                         url: url,
                         contentType: 'application/json; charset=UTF-8',
-                        data: JSON.stringify({ name: name, description: description }),
+                        data: JSON.stringify( data_j ),
                         success: function ( data ) {
                             var id, buttons, tr, json = $.parseJSON( data );
 
                             id = json['_id'];
                             name = json[ 'name' ];
-                            description = json[ 'description' ];
+                            direction = json[ 'direction' ];
+
                             buttons = '<td>' +
                                 '<button class="btn btn-link" name="btn-edit" oid="' + id['$oid'] + '">' +
                                     '<span class="glyphicon glyphicon-pencil"></span>' +
@@ -144,26 +162,28 @@
                                 '</button></td>';
                             tr = '<tr id=tr-' + id['$oid'] + '>' +
                                 '<td>' + id['$oid'] + '</td>' +
-                                '<td id="td-perm-name-'+ id['$oid'] +'">' + name + '</td>' +
-                                '<td id="td-perm-desc-'+ id['$oid'] +'">' + description + '</td>' +
+                                '<td id="td-comp-name-'+ id['$oid'] +'">' + name + '</td>' +
+                                '<td id="td-comp-dir-'+ id['$oid'] +'">' + direction + '</td>' +
+                                '<td id="td-comp-adname-'+ id['$oid'] +'">' + admin_name + '</td>' +
                                 buttons + '</tr>';
                             /* Add row to the table */
-                            $('#results-table tr:last').after(tr);
+                            $( '#results-table tr:last' ).after( tr );
                             $( '#editModal' ).modal( 'hide' );
                         }
                     });
 
                 } else {
-                /* Save edited permission */
+                /* Save edited company */
                     $.ajax({
                         type: 'POST',
                         url: url.concat( '/' + editId ),
                         contentType: 'application/json; charset=UTF-8',
-                        data: JSON.stringify({ name: name, description: description }),
+                        data: JSON.stringify( data_j ),
                         success: function ( data ) {
                             // Update row values
-                            $( '#td-perm-name-' + editId ).html( name );
-                            $( '#td-perm-desc-' + editId ).html( description );
+                            $( '#td-comp-name-' + editId ).html( name );
+                            $( '#td-comp-dir-' + editId ).html( direction );
+                            $( '#td-comp-adname-' + editId ).html( admin_name );
                             $( '#editModal' ).modal( 'hide' );
                         }
                     });
@@ -178,18 +198,20 @@
             /* Delete edit-modal values when is hidding */
             $('#editModal').on('hidden.bs.modal', function (e) {
                 $( '#name').val('');
-                $( '#description' ).val('');
+                $( '#direction' ).val('');
+                $( '#admin-name' ).val( '' );
+                $( '#admin-email' ).val( '' );
                 editId = '-1';
             });
 
-            /* Get permission to delete */
+            /* Get company to delete */
             $( '#results-table' ).on( 'click', 'tr td button[name=btn-minus]', function() {
                 // Only show delete modal
                 deleteId = $( this ).attr( 'oid' );
                 $( '#deleteModal' ).modal( 'show' );
             });
 
-            /* Delete permission */
+            /* Delete company */
             $( '#btn-delete' ).click( function(){
                 $.ajax({
                     type: 'DELETE',
