@@ -115,3 +115,7 @@ body {
 .bg-primary p {
    text-align: center;
 }
+
+.required {
+    border: 1px solid #8C1414;
+}

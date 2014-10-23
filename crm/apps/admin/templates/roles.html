@@ -43,8 +43,8 @@
                 {% for role in roles %}
                 <tr id="tr-{{ role.id }}">
                   <td class="id">{{ role.id }}</td>
-                  <td id="td-role-name-{{ role.id }}">{{ role.get_name() }}</td>
-                  <td id="td-role-desc-{{ role.id }}">{{ role.get_description() }}</td>
+                  <td id="td-role-name-{{ role.id }}">{{ role.get_name()|e }}</td>
+                  <td id="td-role-desc-{{ role.id }}">{{ role.get_description()|e }}</td>
                   <td>
                     <button class="btn btn-link" name="btn-edit" oid="{{ role.id }}">
                       <span class="glyphicon glyphicon-pencil"></span>
@@ -70,9 +70,11 @@
 {% block editModalBody %}
             <div class="modal-body">
               <div class="form-group">
-                <label for="name">Name</label>
+                <label for="name" id="name-lbl">Name</label>
+                <p id="name-p" class="text-danger"></p>
                 <input type="text" class="form-control" id="name" placeholder="Name" name="name">
-                <label for="description">Description</label>
+                <label for="description" id="description-lbl">Description </label>
+                <p id="description-p" class="text-danger"></p>
                 <input type="text" class="form-control" id="description" placeholder="Description" name="description">
               </div>
               <div class="form-group">
@@ -135,8 +137,6 @@
 
                 if( editId == '-1' ){
                 /* Create new role */
-                console.log('list of permissions for this new role');
-                console.log(listPermissions);
                     $.ajax({
                         type: 'POST',
                         url: url,
@@ -149,31 +149,33 @@
                         success: function ( data ) {
                             var id, buttons, tr, json = $.parseJSON( data );
 
-                            id = json['_id'];
-                            name = json[ 'name' ];
-                            description = json[ 'description' ];
-                            buttons = '<td>' +
-                                '<button class="btn btn-link" name="btn-edit" oid="' + id['$oid'] + '">' +
-                                    '<span class="glyphicon glyphicon-pencil"></span>' +
-                                '</button>' +
-                                '<button class="btn btn-link" name="btn-minus" oid="'+ id['$oid'] + '">' +
-                                      '<span class="glyphicon glyphicon-minus"></span>' +
-                                '</button></td>';
-                            tr = '<tr id=tr-' + id['$oid'] + '>' +
-                                '<td>' + id['$oid'] + '</td>' +
-                                '<td id="td-role-name-'+ id['$oid'] +'">' + name + '</td>' +
-                                '<td id="td-role-desc-'+ id['$oid'] +'">' + description + '</td>' +
-                                buttons + '</tr>';
-                            /* Add row to the table */
-                            $('#results-table tr:last').after( tr );
-                            $( '#editModal' ).modal( 'hide' );
+                            if( $.inArray('errors', Object.keys(json)) != -1 ){
+                                show_errors( json['errors'] );
+                            } else {
+                                id = json['_id'];
+                                name = json[ 'name' ];
+                                description = json[ 'description' ];
+                                buttons = '<td>' +
+                                        '<button class="btn btn-link" name="btn-edit" oid="' + id['$oid'] + '">' +
+                                        '<span class="glyphicon glyphicon-pencil"></span>' +
+                                        '</button>' +
+                                        '<button class="btn btn-link" name="btn-minus" oid="' + id['$oid'] + '">' +
+                                        '<span class="glyphicon glyphicon-minus"></span>' +
+                                        '</button></td>';
+                                tr = '<tr id=tr-' + id['$oid'] + '>' +
+                                        '<td>' + id['$oid'] + '</td>' +
+                                        '<td id="td-role-name-' + id['$oid'] + '">' + name + '</td>' +
+                                        '<td id="td-role-desc-' + id['$oid'] + '">' + description + '</td>' +
+                                        buttons + '</tr>';
+                                /* Add row to the table */
+                                $('#results-table tr:last').after(tr);
+                                $('#editModal').modal('hide');
+                            }
                         }
                     });
 
                 } else {
                 /* Save edited role */
-                console.log('list of permissions for this edited role');
-                console.log(listPermissions);
                     $.ajax({
                         type: 'POST',
                         url: url.concat( '/' + editId ),
@@ -184,10 +186,16 @@
                             permissions: JSON.stringify(listPermissions)
                         }),
                         success: function ( data ) {
-                            // Update row values
-                            $( '#td-role-name-' + editId ).html( name );
-                            $( '#td-role-desc-' + editId ).html( description );
-                            $( '#editModal' ).modal( 'hide' );
+                            var json = $.parseJSON( data );
+
+                            if( $.inArray('errors', Object.keys(json)) != -1 ){
+                                show_errors( json['errors'] );
+                            } else {
+                                // Update row values
+                                $('#td-role-name-' + editId).html(name);
+                                $('#td-role-desc-' + editId).html(description);
+                                $('#editModal').modal('hide');
+                            }
                         }
                     });
                 }
@@ -202,6 +210,12 @@
             $('#editModal').on('hidden.bs.modal', function (e) {
                 $( '#name').val('');
                 $( '#description' ).val('');
+                $( '#name-lbl' ).removeClass( 'text-danger' );
+                $( '#description-lbl' ).removeClass( 'text-danger' );
+                $( '#name' ).removeClass( 'required' );
+                $( '#description' ).removeClass( 'required' );
+                $( '#name-p' ).html( '' );
+                $( '#description-p' ).html( '' );
                 $( '#mselect' ).multiSelect( 'deselect_all' );
                 editId = '-1';
             });
@@ -250,7 +264,26 @@
                 for (var i = 0; i < perms.length; i++) {
                     id = perms[i]['$oid'].toString();
                     $( '#mselect' ).multiSelect( 'select', id );
-                };
+                }
+            }
+
+            /* Show in red the label related with the input with errors */
+            function show_errors( dict ){
+                var fields = ['name','direction'];
+                var field = '';
+
+                for (var i = 0; i < fields.length; i++){
+                    field = fields[i];
+                    if ($.inArray(field, Object.keys(dict)) != -1){
+                        $( '#' + field + '-lbl' ).addClass( 'text-danger' );
+                        $( '#' + field ).addClass( 'required' );
+                        $( '#' + field + '-p' ).html( dict[field] );
+                    } else {
+                        $( '#' + field + '-lbl' ).removeClass( 'text-danger' );
+                        $( '#' + field ).removeClass( 'required' );
+                        $( '#' + field + '-p' ).html( '' );
+                    }
+                }
             }
 
         });

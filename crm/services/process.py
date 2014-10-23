@@ -20,8 +20,7 @@ class ProcessService(Service):
 
     def __init__(self, *args, **kwargs):
         super(ProcessService, self).__init__(*args, **kwargs)
-        print 'Process service'
-        #self.categories = CategoryService()
+        # self.categories = CategoryService()
 
     def all(self):
         return self.__model__.objects()

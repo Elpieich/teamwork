@@ -43,8 +43,8 @@
                 {% for user in users %}
                 <tr id="tr-{{ user.id }}">
                   <td class="id">{{ user.id }}</td>
-                  <td id="td-comp-name-{{ user.id }}">{{ user.get_name() }}</td>
-                  <td id="td-comp-email-{{ user.id }}">{{ user.get_email() }}</td>
+                  <td id="td-comp-name-{{ user.id }}">{{ user.get_name()|e }}</td>
+                  <td id="td-comp-email-{{ user.id }}">{{ user.get_email()|e }}</td>
                   <td>
                     <button class="btn btn-link" name="btn-edit" oid="{{ user.id }}">
                       <span class="glyphicon glyphicon-pencil"></span>
@@ -71,13 +71,14 @@
             <div class="modal-body">
               <div class="form-group">
                 <label for="name">Name</label>
+                <p id="name-p" class="text-danger"></p>
                 <input type="text" class="form-control" id="name" placeholder="Name" name="name">
                 <label for="email">Email</label>
+                <p id="email-p" class="text-danger"></p>
                 <input type="text" class="form-control" id="email" placeholder="Email" name="email">
-                <label for="passw">Password</label>
-                <input type="password" class="form-control" id="passw" placeholder="" name="passw">
-                <label for="passw2">Repeat Password</label>
-                <input type="password" class="form-control" id="passw2" placeholder="" name="passw2">
+                <label for="password">Password</label>
+                <p id="password-p" class="text-danger"></p>
+                <input type="password" class="form-control" id="password" placeholder="" name="password">
               </div>
             </div>
 {% endblock %}
@@ -112,7 +113,7 @@
 
                         $( '#name' ).val( json[ 'name' ] );
                         $( '#email' ).val( json[ 'email'] );
-                        $( '#passw' ).val( json[ 'password' ] );
+                        $( '#password' ).val( json[ 'password' ] );
                         $( '#editModal' ).modal( 'show' );
                     }
                 });
@@ -123,7 +124,7 @@
 
                 name = $( '#name' ).val();
                 email = $( '#email' ).val();
-                password = $( '#passw' ).val();
+                password = $( '#password' ).val();
 
                 var data_j = {
                     name: name,
@@ -141,25 +142,29 @@
                         success: function ( data ) {
                             var id, buttons, tr, json = $.parseJSON( data );
 
-                            id = json['_id'];
-                            name = json[ 'name' ];
-                            email = json[ 'email' ];
+                            if( $.inArray('errors', Object.keys(json)) != -1 ){
+                                show_errors( json['errors'] );
+                            } else {
+                                id = json['_id'];
+                                name = json[ 'name' ];
+                                email = json[ 'email' ];
 
-                            buttons = '<td>' +
-                                '<button class="btn btn-link" name="btn-edit" oid="' + id['$oid'] + '">' +
-                                    '<span class="glyphicon glyphicon-pencil"></span>' +
-                                '</button>' +
-                                '<button class="btn btn-link" name="btn-minus" oid="'+ id['$oid'] + '">' +
-                                      '<span class="glyphicon glyphicon-minus"></span>' +
-                                '</button></td>';
-                            tr = '<tr id=tr-' + id['$oid'] + '>' +
-                                '<td>' + id['$oid'] + '</td>' +
-                                '<td id="td-comp-name-'+ id['$oid'] +'">' + name + '</td>' +
-                                '<td id="td-comp-email-'+ id['$oid'] +'">' + email + '</td>' +
-                                buttons + '</tr>';
-                            /* Add row to the table */
-                            $( '#results-table tr:last' ).after( tr );
-                            $( '#editModal' ).modal( 'hide' );
+                                buttons = '<td>' +
+                                        '<button class="btn btn-link" name="btn-edit" oid="' + id['$oid'] + '">' +
+                                        '<span class="glyphicon glyphicon-pencil"></span>' +
+                                        '</button>' +
+                                        '<button class="btn btn-link" name="btn-minus" oid="' + id['$oid'] + '">' +
+                                        '<span class="glyphicon glyphicon-minus"></span>' +
+                                        '</button></td>';
+                                tr = '<tr id=tr-' + id['$oid'] + '>' +
+                                        '<td>' + id['$oid'] + '</td>' +
+                                        '<td id="td-comp-name-' + id['$oid'] + '">' + name + '</td>' +
+                                        '<td id="td-comp-email-' + id['$oid'] + '">' + email + '</td>' +
+                                        buttons + '</tr>';
+                                /* Add row to the table */
+                                $('#results-table tr:last').after(tr);
+                                $('#editModal').modal('hide');
+                            }
                         }
                     });
 
@@ -171,10 +176,16 @@
                         contentType: 'application/json; charset=UTF-8',
                         data: JSON.stringify( data_j ),
                         success: function ( data ) {
-                            // Update row values
-                            $( '#td-comp-name-' + editId ).html( name );
-                            $( '#td-comp-email-' + editId ).html( email );
-                            $( '#editModal' ).modal( 'hide' );
+                            var json = $.parseJSON( data );
+
+                            if( $.inArray('errors', Object.keys(json)) != -1 ){
+                                show_errors( json['errors'] );
+                            } else {
+                                // Update row values
+                                $('#td-comp-name-' + editId).html(name);
+                                $('#td-comp-email-' + editId).html(email);
+                                $('#editModal').modal('hide');
+                            }
                         }
                     });
                 }
@@ -189,8 +200,16 @@
             $('#editModal').on('hidden.bs.modal', function (e) {
                 $( '#name').val('');
                 $( '#email' ).val('');
-                $( '#passw' ).val( '' );
-                $( '#passw2' ).val( '' );
+                $( '#password' ).val( '' );
+                $( '#name').removeClass('required');
+                $( '#email' ).removeClass('required');
+                $( '#password' ).removeClass( 'required' );
+                $( '#name-lbl').removeClass('text-danger');
+                $( '#email-lbl' ).removeClass('text-danger');
+                $( '#password-lbl' ).removeClass( 'text-danger' );
+                $( '#name-p').html('');
+                $( '#email-p' ).html('');
+                $( '#password-p' ).html( '' );
                 editId = '-1';
             });
 
@@ -213,6 +232,25 @@
                     }
                 });
             });
+
+            /* Show in red the label related with the input with errors */
+            function show_errors( dict ){
+                var fields = ['name','email', 'password'];
+                var field = '';
+
+                for (var i = 0; i < fields.length; i++){
+                    field = fields[i];
+                    if ($.inArray(field, Object.keys(dict)) != -1){
+                        $( '#' + field + '-lbl' ).addClass( 'text-danger' );
+                        $( '#' + field ).addClass( 'required' );
+                        $( '#' + field + '-p' ).html( dict[field] );
+                    } else {
+                        $( '#' + field + '-lbl' ).removeClass( 'text-danger' );
+                        $( '#' + field ).removeClass( 'required' );
+                        $( '#' + field + '-p' ).html( '' );
+                    }
+                }
+            }
 
         });
     </script>

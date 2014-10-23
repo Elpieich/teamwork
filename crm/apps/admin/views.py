@@ -6,14 +6,14 @@
     Admin controllers
 """
 
-from flask import Blueprint, request, render_template
-import json
-
+from flask import Blueprint, request, render_template, url_for
 from crm.models.permission import Permission
 from crm.models.role import Role
 from crm.models.company import Company
 from crm.models.admin import Admin
 from crm.models.user import User
+import json
+
 
 bp = Blueprint('admin', __name__)
 
@@ -24,9 +24,9 @@ def permissions():
     Return a list with all the system permissions
     """
 
-    p = Permission.objects()
+    result = Permission.get_all()
 
-    return render_template('permissions.html', permissions=p)
+    return render_template('permissions.html', permissions=result)
 
 
 @bp.route('/permissions', methods=['POST'])
@@ -37,12 +37,11 @@ def create_permissions():
 
     data = request.get_json()
     p = Permission()
-
     p.set_name(data['name'])
     p.set_description(data['description'])
-    p.save()
+    result = Permission.save_object(p)
 
-    return p.to_json()
+    return result
 
 
 @bp.route('/permissions/<p_id>', methods=['GET'])
@@ -51,9 +50,9 @@ def read_permission(p_id):
     Return specified permission
     """
 
-    p = Permission.objects.get(id=p_id)
+    result = Permission.get_object(p_id)
 
-    return p.to_json()
+    return result
 
 
 @bp.route('/permissions/<p_id>', methods=['POST'])
@@ -64,12 +63,11 @@ def update_permission(p_id):
 
     data = request.get_json()
     p = Permission.objects.get(id=p_id)
-
     p.set_name(data['name'])
     p.set_description(data['description'])
-    p.save()
+    result = Permission.save_object(p)
 
-    return 'Updated'
+    return result
 
 
 @bp.route('/permissions/<p_id>', methods=['DELETE'])
@@ -78,9 +76,9 @@ def delete_permission(p_id):
     Delete specified permission
     """
 
-    Permission.objects.get(id=p_id).delete()
+    result = Permission.delete_object(p_id)
 
-    return 'Deleted'
+    return result
 
 
 @bp.route('/roles', methods=['GET'])
@@ -89,8 +87,8 @@ def roles():
     Return a list with all the system roles
     """
 
-    r = Role.objects()
-    p = Permission.objects()
+    r = Role.get_all()
+    p = Permission.get_all()
 
     return render_template('roles.html', roles=r, permissions=p)
 
@@ -104,14 +102,12 @@ def create_role():
 
     data = request.get_json()
     r = Role()
-
     r.set_name(data['name'])
     r.set_description(data['description'])
     perms = json.loads(data['permissions'])
-    r.save() # First save the role after add permissions
-    r.add_permissions(perms)
+    result = Role.save_object(r, perms)
 
-    return r.to_json()
+    return result
 
 
 @bp.route('/roles/<r_id>', methods=['GET'])
@@ -120,9 +116,9 @@ def read_role(r_id):
     Return specified role
     """
 
-    r = Role.objects.get(id=r_id)
+    result = Role.get_object(id=r_id)
 
-    return r.to_json()
+    return result
 
 
 @bp.route('/roles/<r_id>', methods=['POST'])
@@ -133,14 +129,12 @@ def update_role(r_id):
 
     data = request.get_json()
     r = Role.objects.get(id=r_id)
-
     r.set_name(data['name'])
     r.set_description(data['description'])
     perms = json.loads(data['permissions'])
-    r.save()
-    r.add_permissions(perms)
+    result = Role.save_object(r, perms)
 
-    return 'Updated'
+    return result
 
 
 @bp.route('/roles/<r_id>', methods=['DELETE'])
@@ -149,9 +143,9 @@ def delete_role(r_id):
     Delete specified permission
     """
 
-    Role.objects.get(id=r_id).delete()
+    result = Role.delete_object(r_id)
 
-    return 'Deleted'
+    return result
 
 
 @bp.route('/', methods=['GET']) # TODO: make login function
@@ -161,7 +155,7 @@ def companies():
     Return a list with all the system companies
     """
 
-    c = Company.objects()
+    c = Company.get_all()
 
     return render_template('companies.html', companies=c)
 
@@ -173,23 +167,20 @@ def create_company():
     """
 
     data = request.get_json()
-    c = Company()
+    compa = Company()
     admin = Admin()
 
-    c.set_name(data['name'])
-    c.set_direction(data['direction'])
+    compa.set_name(data['name'])
+    compa.set_direction(data['direction'])
 
     admin.set_name(data['admin_name'])
     admin.set_email(data['admin_email'])
-    admin.set_role(
-        Role.objects.get(name='Company administrator')
-    )
-    admin.save(validate=False) # TODO: revisar validaciones
+    admin.set_role(Role.objects.get(name='Company administrator'))
+    admin.set_password('12345678')  # TODO: autogenerate password, send mail
 
-    c.set_admin(admin)
-    c.save()
+    result = Company.save_object(compa, admin)
 
-    return c.to_json()
+    return json.dumps(result)
 
 @bp.route('/companies/<c_id>', methods=['GET'])
 def read_company(c_id):
@@ -197,16 +188,9 @@ def read_company(c_id):
     Return specified company
     """
 
-    c = Company.objects.get(id=c_id)
+    result = Company.get_object(id=c_id)
 
-    dictionary = {
-        'name': c.get_name(),
-        'direction': c.get_direction(),
-        'admin-name': c.get_admin().get_name(),
-        'admin-email': c.get_admin().get_email()
-    }
-
-    return  json.dumps(dictionary)
+    return result
 
 
 @bp.route('/companies/<c_id>', methods=['POST'])
@@ -216,23 +200,18 @@ def update_company(c_id):
     """
 
     data = request.get_json()
-    c = Company.objects.get(id=c_id)
+    compa = Company.objects.get(id=c_id)
+    admin = compa.get_admin()
 
-    c.get_admin().set_name(data['admin_name'])
-    c.get_admin().set_email(data['admin_email'])
-    c.get_admin().save(validate=False) # TODO: revisar validaciones
-    c.set_name(data['name'])
-    c.set_direction(data['direction'])
-    c.save()
+    compa.set_name(data['name'])
+    compa.set_direction(data['direction'])
 
-    dictionary = {
-        'name': c.get_name(),
-        'direction': c.get_direction(),
-        'admin-name': c.get_admin().get_name(),
-        'admin-email': c.get_admin().get_email()
-    }
+    admin.set_name(data['admin_name'])
+    admin.set_email(data['admin_email'])
 
-    return json.dumps(dictionary)
+    result = Company.save_object(compa, admin, edit=True)
+
+    return json.dumps(result)
 
 
 @bp.route('/companies/<c_id>', methods=['DELETE'])
@@ -241,22 +220,17 @@ def delete_company(c_id):
     Delete specified company and their admin
     """
 
-    c = Company.objects.get(id=c_id)
-    Admin.objects.get(id=c.get_admin().id).delete()
-    c.delete()
+    result = Company.delete_object(c_id)
 
-    return 'Deleted'
+    return result
 
 @bp.route('/users', methods=['GET'])
 def users():
     """
     Get all API Admin users
-    :return:
     """
 
-    u = User.objects(
-        role = Role.objects.get(name='Administrator API panel')
-    )
+    u = User.get_all('Administrator API panel')
 
     return render_template('users.html', users=u)
 
@@ -268,15 +242,16 @@ def create_user():
 
     """
     data = request.get_json()
-    u = User()
+    user = User()
 
-    u.set_name(data['name'])
-    u.set_email(data['email'])
-    u.set_password(data['password'])
-    u.set_role(Role.objects.get(name='Administrator API panel'))
-    u.save(validate=False)
+    user.set_name(data['name'])
+    user.set_email(data['email'])
+    user.set_password(data['password'])
+    user.set_role(Role.objects.get(name='Administrator API panel'))
 
-    return u.to_json()
+    result = User.save_object(user)
+
+    return result
 
 
 @bp.route('/users/<u_id>', methods=['GET'])
@@ -285,9 +260,9 @@ def read_user(u_id):
     Return specified user
     """
 
-    u = User.objects.get(id=u_id)
+    result = User.get_object(id=u_id)
 
-    return  u.to_json()
+    return result
 
 
 @bp.route('/users/<u_id>', methods=['POST'])
@@ -302,9 +277,10 @@ def update_user(u_id):
     u.set_name(data['name'])
     u.set_email(data['email'])
     u.set_password(data['password'])
-    u.save(validate=False)
 
-    return u.to_json()
+    result = User.save_object(u)
+
+    return result
 
 
 @bp.route('/users/<u_id>', methods=['DELETE'])
@@ -313,6 +289,6 @@ def delete_user(u_id):
     Delete specified user
     """
 
-    User.objects.get(id=u_id).delete()
+    result = User.delete_object(u_id)
 
-    return 'Deleted'
+    return result

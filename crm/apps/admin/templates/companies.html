@@ -44,9 +44,9 @@
                 {% for company in companies %}
                 <tr id="tr-{{ company.id }}">
                   <td class="id">{{ company.id }}</td>
-                  <td id="td-comp-name-{{ company.id }}">{{ company.get_name() }}</td>
-                  <td id="td-comp-dir-{{ company.id }}">{{ company.get_direction() }}</td>
-                  <td id="td-comp-adname-{{ company.id }}">{{ company.get_admin().name }}</td>
+                  <td id="td-comp-name-{{ company.id }}">{{ company.get_name()|e }}</td>
+                  <td id="td-comp-dir-{{ company.id }}">{{ company.get_direction()|e }}</td>
+                  <td id="td-comp-adname-{{ company.id }}">{{ company.get_admin().name|e }}</td>
                   <td>
                     <button class="btn btn-link" name="btn-edit" oid="{{ company.id }}">
                       <span class="glyphicon glyphicon-pencil"></span>
@@ -73,14 +73,18 @@
             <div class="modal-body">
               <div class="form-group">
                 <label for="name">Name</label>
+                <p id="name-p" class="text-danger"></p>
                 <input type="text" class="form-control" id="name" placeholder="Name" name="name">
                 <label for="direction">Direction</label>
+                <p id="direction-p" class="text-danger"></p>
                 <input type="text" class="form-control" id="direction" placeholder="Direction" name="direction">
               </div>
-                <div class="form-group">
-                <label for="name">Administrator name</label>
+              <div class="form-group">
+                <label for="admin-name">Administrator name</label>
+                <p id="admin-name-p" class="text-danger"></p>
                 <input type="text" class="form-control" id="admin-name" placeholder="Administrator name" name="admin-name">
                 <label for="admin-email">Email</label>
+                <p id="admin-email-p" class="text-danger"></p>
                 <input type="text" class="form-control" id="admin-email" placeholder="E-mail" name="admin-email">
               </div>
             </div>
@@ -149,26 +153,30 @@
                         success: function ( data ) {
                             var id, buttons, tr, json = $.parseJSON( data );
 
-                            id = json['_id'];
-                            name = json[ 'name' ];
-                            direction = json[ 'direction' ];
+                            if( $.inArray('errors', Object.keys(json)) != -1 ){
+                                show_errors( json['errors'] );
+                            } else {
+                                id = json['_id'];
+                                name = json[ 'name' ];
+                                direction = json[ 'direction' ];
 
-                            buttons = '<td>' +
-                                '<button class="btn btn-link" name="btn-edit" oid="' + id['$oid'] + '">' +
-                                    '<span class="glyphicon glyphicon-pencil"></span>' +
-                                '</button>' +
-                                '<button class="btn btn-link" name="btn-minus" oid="'+ id['$oid'] + '">' +
-                                      '<span class="glyphicon glyphicon-minus"></span>' +
-                                '</button></td>';
-                            tr = '<tr id=tr-' + id['$oid'] + '>' +
-                                '<td>' + id['$oid'] + '</td>' +
-                                '<td id="td-comp-name-'+ id['$oid'] +'">' + name + '</td>' +
-                                '<td id="td-comp-dir-'+ id['$oid'] +'">' + direction + '</td>' +
-                                '<td id="td-comp-adname-'+ id['$oid'] +'">' + admin_name + '</td>' +
-                                buttons + '</tr>';
-                            /* Add row to the table */
-                            $( '#results-table tr:last' ).after( tr );
-                            $( '#editModal' ).modal( 'hide' );
+                                buttons = '<td>' +
+                                        '<button class="btn btn-link" name="btn-edit" oid="' + id['$oid'] + '">' +
+                                        '<span class="glyphicon glyphicon-pencil"></span>' +
+                                        '</button>' +
+                                        '<button class="btn btn-link" name="btn-minus" oid="' + id['$oid'] + '">' +
+                                        '<span class="glyphicon glyphicon-minus"></span>' +
+                                        '</button></td>';
+                                tr = '<tr id=tr-' + id['$oid'] + '>' +
+                                        '<td>' + id['$oid'] + '</td>' +
+                                        '<td id="td-comp-name-' + id['$oid'] + '">' + name + '</td>' +
+                                        '<td id="td-comp-dir-' + id['$oid'] + '">' + direction + '</td>' +
+                                        '<td id="td-comp-adname-' + id['$oid'] + '">' + admin_name + '</td>' +
+                                        buttons + '</tr>';
+                                /* Add row to the table */
+                                $('#results-table tr:last').after(tr);
+                                $('#editModal').modal('hide');
+                            }
                         }
                     });
 
@@ -180,11 +188,17 @@
                         contentType: 'application/json; charset=UTF-8',
                         data: JSON.stringify( data_j ),
                         success: function ( data ) {
-                            // Update row values
-                            $( '#td-comp-name-' + editId ).html( name );
-                            $( '#td-comp-dir-' + editId ).html( direction );
-                            $( '#td-comp-adname-' + editId ).html( admin_name );
-                            $( '#editModal' ).modal( 'hide' );
+                            var json = $.parseJSON( data );
+
+                            if ( $.inArray('errors', Object.keys(json)) != -1 ){
+                                show_errors( json['errors'] );
+                            } else {
+                                // Update row values
+                                $('#td-comp-name-' + editId).html(name);
+                                $('#td-comp-dir-' + editId).html(direction);
+                                $('#td-comp-adname-' + editId).html(admin_name);
+                                $('#editModal').modal('hide');
+                            }
                         }
                     });
                 }
@@ -201,6 +215,18 @@
                 $( '#direction' ).val('');
                 $( '#admin-name' ).val( '' );
                 $( '#admin-email' ).val( '' );
+                $( '#name').removeClass( 'required' );
+                $( '#direction' ).removeClass( 'required' );
+                $( '#admin-name' ).removeClass( 'required' );
+                $( '#admin-email' ).removeClass( 'required' );
+                $( '#name-lbl').removeClass( 'txt-danger' );
+                $( '#direction-lbl' ).removeClass( 'txt-danger' );
+                $( '#admin-name-lbl' ).removeClass( 'txt-danger' );
+                $( '#admin-email-lbl' ).removeClass( 'txt-danger' );
+                $( '#name-p').html( '' );
+                $( '#direction-p' ).html( '' );
+                $( '#admin-name-p' ).html( '' );
+                $( '#admin-email-p' ).html( '' );
                 editId = '-1';
             });
 
@@ -223,6 +249,25 @@
                     }
                 });
             });
+
+            /* Show in red the label related with the input with errors */
+            function show_errors( dict ){
+                var fields = ['name','direction', 'admin-name', 'admin-email'];
+                var field = '';
+
+                for (var i = 0; i < fields.length; i++){
+                    field = fields[i];
+                    if ($.inArray(field, Object.keys(dict)) != -1){
+                        $( '#' + field + '-lbl' ).addClass( 'text-danger' );
+                        $( '#' + field ).addClass( 'required' );
+                        $( '#' + field + '-p' ).html( dict[field] );
+                    } else {
+                        $( '#' + field + '-lbl' ).removeClass( 'text-danger' );
+                        $( '#' + field ).removeClass( 'required' );
+                        $( '#' + field + '-p' ).html( '' );
+                    }
+                }
+            }
 
         });
     </script>
