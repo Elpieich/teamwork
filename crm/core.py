@@ -7,6 +7,7 @@
 
 from flask_mongoengine import MongoEngine
 from flask_debugtoolbar import DebugToolbarExtension
+from flask_login import LoginManager
 
 #db = SQLAlchemy()
 #mail = Mail()
@@ -14,3 +15,4 @@ from flask_debugtoolbar import DebugToolbarExtension
 #social = Social()
 db = MongoEngine()
 toolbar = DebugToolbarExtension()
+login_manager = LoginManager()

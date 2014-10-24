@@ -6,19 +6,23 @@
     Admin controllers
 """
 
-from flask import Blueprint, request, render_template, url_for
+from flask import Blueprint, request, render_template, redirect, url_for
+from flask.ext.login import login_required, login_user, logout_user
+
 from crm.models.permission import Permission
 from crm.models.role import Role
 from crm.models.company import Company
 from crm.models.admin import Admin
 from crm.models.user import User
+from crm.core import login_manager
+
 import json
 
-
-bp = Blueprint('admin', __name__)
+bp = Blueprint('admin', __name__, template_folder='templates')
 
 
 @bp.route('/permissions', methods=['GET'])
+@login_required
 def permissions():
     """
     Return a list with all the system permissions
@@ -30,6 +34,7 @@ def permissions():
 
 
 @bp.route('/permissions', methods=['POST'])
+@login_required
 def create_permissions():
     """
     Create a new permission
@@ -45,6 +50,7 @@ def create_permissions():
 
 
 @bp.route('/permissions/<p_id>', methods=['GET'])
+@login_required
 def read_permission(p_id):
     """
     Return specified permission
@@ -56,6 +62,7 @@ def read_permission(p_id):
 
 
 @bp.route('/permissions/<p_id>', methods=['POST'])
+@login_required
 def update_permission(p_id):
     """
     Update specified permission
@@ -71,6 +78,7 @@ def update_permission(p_id):
 
 
 @bp.route('/permissions/<p_id>', methods=['DELETE'])
+@login_required
 def delete_permission(p_id):
     """
     Delete specified permission
@@ -82,6 +90,7 @@ def delete_permission(p_id):
 
 
 @bp.route('/roles', methods=['GET'])
+@login_required
 def roles():
     """
     Return a list with all the system roles
@@ -94,6 +103,7 @@ def roles():
 
 
 @bp.route('/roles', methods=['POST'])
+@login_required
 def create_role():
     """
     Create a new role
@@ -111,6 +121,7 @@ def create_role():
 
 
 @bp.route('/roles/<r_id>', methods=['GET'])
+@login_required
 def read_role(r_id):
     """
     Return specified role
@@ -122,6 +133,7 @@ def read_role(r_id):
 
 
 @bp.route('/roles/<r_id>', methods=['POST'])
+@login_required
 def update_role(r_id):
     """
     Update specified role
@@ -138,6 +150,7 @@ def update_role(r_id):
 
 
 @bp.route('/roles/<r_id>', methods=['DELETE'])
+@login_required
 def delete_role(r_id):
     """
     Delete specified permission
@@ -148,8 +161,8 @@ def delete_role(r_id):
     return result
 
 
-@bp.route('/', methods=['GET']) # TODO: make login function
 @bp.route('/companies', methods=['GET'])
+@login_required
 def companies():
     """
     Return a list with all the system companies
@@ -161,6 +174,7 @@ def companies():
 
 
 @bp.route('/companies', methods=['POST'])
+@login_required
 def create_company():
     """
     Create a new company
@@ -183,6 +197,7 @@ def create_company():
     return json.dumps(result)
 
 @bp.route('/companies/<c_id>', methods=['GET'])
+@login_required
 def read_company(c_id):
     """
     Return specified company
@@ -194,6 +209,7 @@ def read_company(c_id):
 
 
 @bp.route('/companies/<c_id>', methods=['POST'])
+@login_required
 def update_company(c_id):
     """
     Update specified company and their administrator
@@ -215,6 +231,7 @@ def update_company(c_id):
 
 
 @bp.route('/companies/<c_id>', methods=['DELETE'])
+@login_required
 def delete_company(c_id):
     """
     Delete specified company and their admin
@@ -225,6 +242,7 @@ def delete_company(c_id):
     return result
 
 @bp.route('/users', methods=['GET'])
+@login_required
 def users():
     """
     Get all API Admin users
@@ -236,6 +254,7 @@ def users():
 
 
 @bp.route('/users', methods=['POST'])
+@login_required
 def create_user():
     """
     Create a new API admin user
@@ -255,6 +274,7 @@ def create_user():
 
 
 @bp.route('/users/<u_id>', methods=['GET'])
+@login_required
 def read_user(u_id):
     """
     Return specified user
@@ -266,6 +286,7 @@ def read_user(u_id):
 
 
 @bp.route('/users/<u_id>', methods=['POST'])
+@login_required
 def update_user(u_id):
     """
     Update an API admin user
@@ -284,6 +305,7 @@ def update_user(u_id):
 
 
 @bp.route('/users/<u_id>', methods=['DELETE'])
+@login_required
 def delete_user(u_id):
     """
     Delete specified user
@@ -292,3 +314,50 @@ def delete_user(u_id):
     result = User.delete_object(u_id)
 
     return result
+
+
+@bp.route('/', methods=['GET'])
+def index():
+    return render_template('login.html')
+
+
+@bp.route('/login', methods=['POST'])
+def login():
+    email = request.form['email']
+    password = request.form['password']
+
+    user = User.objects.get(
+        email=email,  # TODO: hacer email unico
+        role=Role.objects.get(name='Administrator API panel'))
+    print 'passwords', password, user.get_password()
+    if user.get_password() == password:
+        login_user(user)
+        return render_template('companies.html')
+    else:
+        errors = {'errors':'datos incorrectos'}
+        return render_template('login.html', errors=errors)
+
+
+@bp.route("/logout", methods=['GET'])
+@login_required
+def logout():
+    logout_user()
+    return render_template('login.html')
+
+
+@login_manager.user_loader
+def load_user(userid):
+    print 'load_user'
+    user = User.objects.get(id=userid)
+
+    if user:
+        return user
+    else:
+        return None
+
+@login_manager.unauthorized_handler
+def unauthorized():
+    errors = "The server could not verify that you are authorized to access the URL requested." \
+          " You either supplied the wrong credentials (e.g. a bad password), " \
+          "or your browser doesn't understand how to supply the credentials required."
+    return render_template('login.html', errors=errors)

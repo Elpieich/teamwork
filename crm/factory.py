@@ -3,7 +3,7 @@
 from flask import Flask
 from mongoengine import connect
 
-from .core import db, toolbar
+from .core import db, toolbar, login_manager
 from .helpers import register_blueprints
 from .middlewares import HTTPMethodOverrideMiddleware
 
@@ -41,6 +41,7 @@ class Factory:
 
         db.init_app(app)
         toolbar.init_app(app)
+        login_manager.init_app(app)
         # db.init_app(app)
         # mail.init_app(app)
         # security.init_app(

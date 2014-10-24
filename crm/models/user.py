@@ -43,6 +43,18 @@ class User(db.Document):
     def set_password(self, passw):
         self.password = passw
 
+    def is_authenticated(self):
+        return True
+
+    def is_active(self):
+        return True
+
+    def is_anonymous(self):
+        return False
+
+    def get_id(self):
+        return unicode(self.id)
+
     @staticmethod
     def get_object(id):
         try:
