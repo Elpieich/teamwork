@@ -1,17 +1,14 @@
 # -*- encoding:utf-8 -*-
 
-from functools import wraps
-
-from flask import request
 import werkzeug.exceptions
-from werkzeug.exceptions import UnsupportedMediaType, NotAcceptable
+
+from functools import wraps
+from flask import request, jsonify, current_app
 
 from .core import db
 
-
-#print werkzeug.exceptions.__dict__
-
-
+from pprint import pprint 
+#pprint(werkzeug.exceptions.__doc__)
 
 #autentificacion
 #autorizacion
@@ -22,84 +19,70 @@ from .core import db
 #manejo de errores
 #clean
 
+
 CONTENT_TYPES = (
-    'application/json')
+    'application/json',)
 
 
-def verify_content(*content_types):
+
+def route(bp, *args, **kwargs):
+    kwargs.setdefault('strict_slashes', False)
+    def decorated(fn):
+        @bp.route(*args, **kwargs)
+        @wraps(fn)
+        def wrapper(*args, **kwargs):
+            sc = 200
+            rv = fn(*args, **kwargs)
+            print rv
+            if isinstance(rv, tuple):
+                sc = rv[1]
+                rv = rv[0]
+            return jsonify(dict(data=rv)), sc
+        return wrapper
+    return decorated
+
+
+def content_type(*content_types):
     def decorated(fn):
         @wraps(fn)
         def wrapper(*args, **kwargs):
-            print 'Pregunta--------------------->'
             if request.mimetype not in content_types:
-                raise UnsupportedMediaType()
+                raise werkzeug.exceptions.UnsupportedMediaType
             return fn(*args, **kwargs)
         return wrapper
     return decorated
 
 
-import inspect
-
-def decallmethods(decorator):
-    def dectheclass(cls):
-        for name, m in inspect.getmembers(cls, inspect.ismethod):
-            setattr(cls, name, decorator(m))
-        return cls
-    return dectheclass
+def authenticity(fn):
+    def decorated(*args, **kwargs):
+        return fn(*args, **kwargs)
+    return decorated
 
 
-
-# class Error(Exception):
-
-
-
-# def on_overholt_error(e):
-#     return jsonify(dict(error=e.msg)), 400
-
-
-# def on_overholt_form_error(e):
-#     return jsonify(dict(errors=e.errors)), 400
-
-
-# def on_404(e):
-#     return jsonify(dict(error='Not found')), 404
+def output(fn):
+    def decorated(*args, **kwargs):
+        sc = 200
+        rv = fn(*args, **kwargs)
+        print rv
+        if isinstance(rv, tuple):
+            sc = rv[1]
+            rv = rv[0]
+        return jsonify(dict(data=rv)), sc
+    return decorated
 
 
-# from flask import jsonify
-
-# class InvalidUsage(Exception):
-#     status_code = 400
-
-#     def __init__(self, message, status_code=None, payload=None):
-#         Exception.__init__(self)
-#         self.message = message
-#         if status_code is not None:
-#             self.status_code = status_code
-#         self.payload = payload
-
-#     def to_dict(self):
-#         rv = dict(self.payload or ())
-#         rv['message'] = self.message
-#         return rv
-        
-        
-# @app.errorhandler(InvalidUsage)
-# def handle_invalid_usage(error):
-#     response = jsonify(error.to_dict())
-#     response.status_code = error.status_code
-#     return response
-#     
-#     
-# @app.route('/foo')
-# def get_foo():
-#     raise InvalidUsage('This view is gone', status_code=410)
-
-@decallmethods(verify_content(*CONTENT_TYPES))
 class Service(object):
     """A :class:`Service` instance encapsulates common MongoEngine model
     operations in the context of a :class:`Flask` application.
     """
     __model__ = None
+
+
+    @content_type(*CONTENT_TYPES)
+    @authenticity
+    def __init__(self):
+        pass
+
 
     def _isinstance(self, model, raise_error=True):
         """Checks if the specified model instance matches the service's model.
@@ -129,14 +112,13 @@ class Service(object):
         :param model: the model to save
         """
         self._isinstance(model)
-        db.session.add(model)
-        db.session.commit()
+        model.save()
         return model
 
     def all(self):
         """Returns a generator containing all instances of the service's model.
         """
-        return self.__model__.query.all()
+        return self.__model__.objects().to_json()
 
     def get(self, id):
         """Returns an instance of the service's model with the specified id.
@@ -144,7 +126,7 @@ class Service(object):
 
         :param id: the instance id
         """
-        return self.__model__.query.get(id)
+        return self.__model__.objects.get(id=id)
 
     def get_all(self, *ids):
         """Returns a list of instances of the service's model with the specified
@@ -152,7 +134,7 @@ class Service(object):
 
         :param *ids: instance ids
         """
-        return self.__model__.query.filter(self.__model__.id.in_(ids)).all()
+        return self.__model__.objects.filter(self.__model__.id.in_(ids)).all()
 
     def find(self, **kwargs):
         """Returns a list of instances of the service's model filtered by the
@@ -160,7 +142,7 @@ class Service(object):
 
         :param **kwargs: filter parameters
         """
-        return self.__model__.query.filter_by(**kwargs)
+        return self.__model__.objects.filter(**kwargs)
 
     def first(self, **kwargs):
         """Returns the first instance found of the service's model filtered by
@@ -168,7 +150,7 @@ class Service(object):
 
         :param **kwargs: filter parameters
         """
-        return self.find(**kwargs).first()
+        return self.__model__.objects.find(**kwargs).first()
 
     def get_or_404(self, id):
         """Returns an instance of the service's model with the specified id or
@@ -183,14 +165,15 @@ class Service(object):
 
         :param **kwargs: instance parameters
         """
-        return self.__model__(**self._preprocess_params(kwargs))
+        return self.__model__(**kwargs)
 
     def create(self, **kwargs):
         """Returns a new, saved instance of the service's model class.
 
         :param **kwargs: instance parameters
         """
-        return self.save(self.new(**kwargs))
+        instance = self.new(**kwargs)
+        return self.save(instance).to_json()
 
     def update(self, model, **kwargs):
         """Returns an updated instance of the service's model class.
@@ -212,3 +195,4 @@ class Service(object):
         self._isinstance(model)
         db.session.delete(model)
         db.session.commit()
+        # context manager support

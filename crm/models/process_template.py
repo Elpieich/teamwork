@@ -62,8 +62,5 @@ class ProcessTemplate(db.Document):
         self.stage_templates = stage_templates
 
 
-    def all(self):
-        return self.objects()
-
 
 

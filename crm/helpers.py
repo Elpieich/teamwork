@@ -26,6 +26,15 @@ def register_blueprints(app, package_name, package_path):
     return rv
 
 
+def decallmethods(decorator):
+    def dectheclass(cls):
+        import inspect
+        for name, m in inspect.getmembers(cls, inspect.ismethod):
+            setattr(cls, name, decorator(m))
+        return cls
+    return dectheclass
+
+
 class JSONEncoder(BaseJSONEncoder):
     """Custom :class:`JSONEncoder` which respects objects that include the
     :class:`JsonSerializer` mixin.

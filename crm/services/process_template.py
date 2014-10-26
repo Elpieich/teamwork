@@ -17,13 +17,11 @@ class ProcessTemplateService(Service):
 
     def __init__(self, *args, **kwargs):
         super(ProcessTemplateService, self).__init__(*args, **kwargs)
-        print 'Process service'
         #self.categories = CategoryService()
 
-    def all(self):
-        return self.__model__.objects()
 
-    # def _preprocess_params(self, kwargs):
+    def _preprocess_params(self, **kwargs):
+        return kwargs
     #     kwargs = super(ProcessService, self)._preprocess_params(kwargs)
     #     categories = kwargs.get('categories', [])
     #     if categories and all(isinstance(c, int) for c in categories):

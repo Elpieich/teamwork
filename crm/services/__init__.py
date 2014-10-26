@@ -8,7 +8,7 @@ from process_template import ProcessTemplateService
 # from task import TaskService
 
 
-process_template = ProcessTemplateService()
+process_template = ProcessTemplateService
 # stage_template = StageTemplateService()
 # process = ProcessService()
 # stage = StageService()

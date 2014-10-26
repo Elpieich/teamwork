@@ -8,7 +8,7 @@
 
 from flask import Blueprint, request
 
-from . import route
+from crm.service import route
 
 
 bp = Blueprint('account', __name__, url_prefix='/account')
