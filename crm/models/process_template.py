@@ -23,9 +23,9 @@ class ProcessTemplate(db.Document):
                           required=True)
     description = db.StringField(max_length=140,
                                  required=True)
-    # type = db.StringField(choices=TYPES)
-    # company = db.ReferenceField('Company')
-    # stage_templates = db.ListField(db.EmbeddedDocumentField('StageTemplate'))
+    type = db.StringField(choices=TYPES)
+    company = db.ReferenceField('Company')
+    stage_templates = db.ListField(db.EmbeddedDocumentField('StageTemplate'))
 
     meta = {
         'allow_inheritance': True

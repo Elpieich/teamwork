@@ -6,7 +6,7 @@
     Template endpoints
 """
 
-from flask import Blueprint, request
+from flask import Blueprint
 
 from crm.services import process_template
 from crm.service import route
@@ -30,7 +30,7 @@ def process_template_create():
     """
 
     service = process_template()
-    return service.create(**request.get_json())
+    return service.create()
 
 
 @route(bp, '/<template_id>')

@@ -3,6 +3,7 @@
 import werkzeug.exceptions
 
 from functools import wraps
+from itertools import chain
 from flask import request, jsonify, current_app
 
 from .core import db
@@ -32,7 +33,7 @@ def route(bp, *args, **kwargs):
         @wraps(fn)
         def wrapper(*args, **kwargs):
             sc = 200
-            rv = fn(*args, **kwargs)
+            rv = fn(*args, **kwargs).to_json()
             print rv
             if isinstance(rv, tuple):
                 sc = rv[1]
@@ -62,8 +63,7 @@ def authenticity(fn):
 def output(fn):
     def decorated(*args, **kwargs):
         sc = 200
-        rv = fn(*args, **kwargs)
-        print rv
+        rv = fn(*args, **kwargs).to_json()
         if isinstance(rv, tuple):
             sc = rv[1]
             rv = rv[0]
@@ -76,15 +76,17 @@ class Service(object):
     operations in the context of a :class:`Flask` application.
     """
     __model__ = None
+    __request__ = None
 
 
     @content_type(*CONTENT_TYPES)
     @authenticity
     def __init__(self):
-        pass
+        if 'POST' in request.method:
+            self.__request__ = request.get_json()
 
 
-    def _isinstance(self, model, raise_error=True):
+    def _isinstance(self, instance, raise_error=True):
         """Checks if the specified model instance matches the service's model.
         By default this method will raise a `ValueError` if the model is not the
         expected type.
@@ -92,10 +94,9 @@ class Service(object):
         :param model: the model instance to check
         :param raise_error: flag to raise an error on a mismatch
         """
-        rv = isinstance(model, self.__model__)
-        if not rv and raise_error:
-            raise ValueError('%s is not of type %s' % (model, self.__model__))
-        return rv
+        if not isinstance(instance, self.__model__) and raise_error:
+            raise ValueError('%s is not of type %s' % (instance, self.__model__))
+        return True
 
     def _preprocess_params(self, kwargs):
         """Returns a preprocessed dictionary of parameters. Used by default
@@ -106,19 +107,22 @@ class Service(object):
         kwargs.pop('csrf_token', None)
         return kwargs
 
-    def save(self, model):
+    def save(self, instance):
         """Commits the model to the database and returns the model
 
         :param model: the model to save
         """
-        self._isinstance(model)
-        model.save()
-        return model
+        self._isinstance(instance)
+        instance.save()
+        return instance
 
     def all(self):
         """Returns a generator containing all instances of the service's model.
         """
-        return self.__model__.objects().to_json()
+        return self.__model__.objects()
+
+
+
 
     def get(self, id):
         """Returns an instance of the service's model with the specified id.
@@ -160,6 +164,10 @@ class Service(object):
         """
         return self.__model__.query.get_or_404(id)
 
+
+
+
+
     def new(self, **kwargs):
         """Returns a new, unsaved instance of the service's model class.
 
@@ -172,27 +180,33 @@ class Service(object):
 
         :param **kwargs: instance parameters
         """
-        instance = self.new(**kwargs)
-        return self.save(instance).to_json()
 
-    def update(self, model, **kwargs):
+        parameters = dict(chain(self.__request__.items(), kwargs.items()))
+        instance = self.new(**parameters)
+        return self.save(instance)
+
+
+
+
+
+
+    def update(self, instance, **kwargs):
         """Returns an updated instance of the service's model class.
 
         :param model: the model to update
         :param **kwargs: update parameters
         """
-        self._isinstance(model)
-        for k, v in self._preprocess_params(kwargs).items():
-            setattr(model, k, v)
-        self.save(model)
-        return model
+        self._isinstance(instance)
+        for field, value in self._preprocess_params(kwargs).items():
+            setattr(instance, field, value)
+        return self.save(instance)
 
-    def delete(self, model):
+    def delete(self, instance):
         """Immediately deletes the specified model instance.
 
         :param model: the model instance to delete
         """
-        self._isinstance(model)
-        db.session.delete(model)
+        self._isinstance(instance)
+        db.session.delete(instance)
         db.session.commit()
         # context manager support
