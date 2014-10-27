@@ -9,15 +9,13 @@
 from flask import Blueprint, request, render_template, g, redirect
 from flask.ext.login import login_required, login_user, logout_user, current_user
 
-
-from crm.models.permission import Permission
-from crm.models.role import Role
-from crm.models.company import Company
-from crm.models.admin import Admin
-from crm.models.user import User
-from crm.models.log import Log
+from crm.models2.permission import Permission
+from crm.models2.role import Role
+from crm.models2.company import Company
+from crm.models2.admin import Admin
+from crm.models2.user import User
+from crm.models2.log import Log
 from crm.core import login_manager
-from pprint import pprint
 
 import json
 
