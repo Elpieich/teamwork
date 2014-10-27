@@ -1,8 +1,6 @@
 # -*- encoding:utf-8 -*-
 
-from flask_mail import Message
-from ..core import db, mail
-import json
+from ..core import db
 
 
 class Company(db.Document):

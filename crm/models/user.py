@@ -1,13 +1,7 @@
 # -*- encoding:utf-8 -*-
 
-from itsdangerous import URLSafeTimedSerializer
-from flask_mail import Message
-import json
+from ..core import db
 
-from ..core import db, mail
-
-
-login_serializer = URLSafeTimedSerializer('FLAKSDJFdLKJ98798}{}{}KAJSDHFK22a')
 
 
 class User(db.Document):
@@ -57,4 +51,3 @@ class User(db.Document):
 
     def get_token(self):
         return self.token
-

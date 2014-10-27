@@ -1,7 +1,6 @@
 # -*- encoding:utf-8 -*-
 
 from ..core import db
-import json
 
 
 class Permission(db.Document):
@@ -25,4 +24,3 @@ class Permission(db.Document):
 
     def set_description(self, desc):
         self.description = desc
-

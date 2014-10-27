@@ -11,12 +11,12 @@ DEBUG = False
 
 #SQLALCHEMY_DATABASE_URI = 'mysql://root@33.33.33.10:3306/overholt'
 
-MAIL_DEFAULT_SENDER = 'info@overholt.com'
-MAIL_SERVER = 'smtp.postmarkapp.com'
-MAIL_PORT = 25
-MAIL_USE_TLS = True
-MAIL_USERNAME = 'username'
-MAIL_PASSWORD = 'password'
+# MAIL_DEFAULT_SENDER = 'crmsuscriptions@gmail.com'
+MAIL_SERVER = 'smtp.gmail.com'
+MAIL_PORT = 465
+MAIL_USE_SSL = True
+MAIL_USERNAME = 'crmsuscriptions'
+MAIL_PASSWORD = '.ale.748512'
 
 SECURITY_POST_LOGIN_VIEW = '/profile'
 SECURITY_PASSWORD_HASH = 'plaintext'
@@ -29,4 +29,5 @@ SECURITY_SEND_REGISTER_EMAIL = False
 SECURITY_TRACKABLE = True
 
 CSRF_ENABLED = True
-        
+
+DEBUG_TB_INTERCEPT_REDIRECTS = False
