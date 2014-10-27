@@ -1,0 +1,247 @@
+{% extends "base.html" %}
+
+{% block head %}
+    {{ super() }}
+{% endblock %}
+
+{% block title %} Permissions {% endblock %}
+
+{% block sidebar %}
+        <div class="col-sm-3 col-md-2 sidebar">
+          <ul class="nav nav-sidebar">
+            <li><a href="http://localhost:5000/admin/companies">Companies</a></li>
+          </ul>
+          <ul class="nav nav-sidebar">
+            <li><a href="http://localhost:5000/admin/users">API Admin Users</a></li>
+            <li><a href="http://localhost:5000/admin/roles">Roles</a></li>
+            <li class="active"><a href="http://localhost:5000/admin/permissions">Permissions</a></li>
+          </ul>
+          <ul class="nav nav-sidebar">
+            <li><a href="http://localhost:5000/admin/logs">Activity Log</a></li>
+          </ul>
+        </div>
+{% endblock %}
+
+{% block content %}
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+          <h1 class="page-header"> Permissions </h1>
+          <div class="row">
+            <div class="col-md-2">
+              <button type="button" class="btn btn-primary" id="btn-new">
+                  <span class="glyphicon glyphicon-plus"></span>
+              </button>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-striped" id="results-table">
+              <thead>
+                <tr>
+                  <th>id</th>
+                  <th>Name</th>
+                  <th>Description</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for permission in permissions %}
+                <tr id="tr-{{ permission.id }}">
+                  <td class="id">{{ permission.id }}</td>
+                  <td id="td-perm-name-{{ permission.id }}">{{ permission.get_name()|e }}</td>
+                  <td id="td-perm-desc-{{ permission.id }}">{{ permission.get_description()|e }}</td>
+                  <td>
+                    <button class="btn btn-link" name="btn-edit" oid="{{ permission.id}}">
+                      <span class="glyphicon glyphicon-pencil"></span>
+                    </button>
+                    <button class="btn btn-link" name="btn-minus" oid="{{ permission.id }}">
+                      <span class="glyphicon glyphicon-minus"></span>
+                    </button>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+{% endblock %}
+
+{% block editmodal %}
+    {{ super() }}
+{% endblock %}
+
+{% block editModalTitle%} Permission {% endblock %}
+
+{% block editModalBody %}
+            <div class="modal-body">
+              <div class="form-group">
+                <label for="name" id="name-lbl">Name </label>
+                <p id="name-p" class="text-danger"></p>
+                <input type="text" class="form-control" id="name" placeholder="Name" name="name">
+                <label for="description" id="description-lbl">Description</label>
+                <p id="description-p" class="text-danger"></p>
+                <input type="text" class="form-control" id="description" placeholder="Description" name="description">
+              </div>
+            </div>
+{% endblock %}
+
+{% block deletemodal %}
+    {{ super() }}
+{% endblock %}
+
+{% block deleteModalTitle%} Permissions {% endblock %}
+
+{% block deleteModalMsg%} Are you sure you want to delete the selected permission? {% endblock %}
+
+{% block another_js %}
+    <script type="text/javascript">
+        $( document ).ready( function() {
+            var url = 'http://localhost:5000/admin/permissions';
+            var deleteId = '';
+            var editId = '-1';
+
+            /* Get permission to edit */
+            $( '#results-table' ).on( 'click', 'tr td button[name=btn-edit]', function() {
+                var name, description;
+
+                editId = $( this ).attr( 'oid' );
+
+                $.ajax({
+                    type: 'GET',
+                    url: url.concat('/' + editId),
+                    success: function ( data ) {
+                        var json = $.parseJSON( data );
+
+                        name = json[ 'name' ];
+                        description = json[ 'description'];
+
+                        $( '#name').val( name );
+                        $( '#description' ).val( description );
+                        $( '#editModal' ).modal( 'show' );
+                    }
+                });
+            });
+
+            $( '#btn-save' ).click( function(){
+                var name, description;
+
+                name = $( '#name' ).val();
+                description = $( '#description' ).val();
+
+
+                if( editId == '-1' ){
+                /* Create new permission */
+                    $.ajax({
+                        type: 'POST',
+                        url: url,
+                        contentType: 'application/json; charset=UTF-8',
+                        data: JSON.stringify({ name: name, description: description }),
+                        success: function ( data ) {
+                            var id, buttons, tr, json = $.parseJSON( data );
+
+                            if( $.inArray('errors', Object.keys(json)) != -1 ){
+                                show_errors( json['errors'] );
+                            } else {
+                                id = json['_id'];
+                                name = json[ 'name' ];
+                                description = json[ 'description' ];
+                                buttons = '<td>' +
+                                    '<button class="btn btn-link" name="btn-edit" oid="' + id['$oid'] + '">' +
+                                        '<span class="glyphicon glyphicon-pencil"></span>' +
+                                    '</button>' +
+                                    '<button class="btn btn-link" name="btn-minus" oid="'+ id['$oid'] + '">' +
+                                          '<span class="glyphicon glyphicon-minus"></span>' +
+                                    '</button></td>';
+                                tr = '<tr id=tr-' + id['$oid'] + '>' +
+                                    '<td>' + id['$oid'] + '</td>' +
+                                    '<td id="td-perm-name-'+ id['$oid'] +'">' + name + '</td>' +
+                                    '<td id="td-perm-desc-'+ id['$oid'] +'">' + description + '</td>' +
+                                    buttons + '</tr>';
+                                /* Add row to the table */
+                                $( '#results-table tr:last' ).after( tr );
+                                $( '#editModal' ).modal( 'hide' );
+                            }
+                        }
+                    });
+
+                } else {
+                /* Save edited permission */
+                    $.ajax({
+                        type: 'POST',
+                        url: url.concat( '/' + editId ),
+                        contentType: 'application/json; charset=UTF-8',
+                        data: JSON.stringify({ name: name, description: description }),
+                        success: function ( data ) {
+                            var json = $.parseJSON( data );
+
+                            if( $.inArray('errors', Object.keys(json)) != -1 ){
+                                show_errors( json['errors'] );
+                            } else {
+                                // Update row values
+                                $('#td-perm-name-' + editId).html(name);
+                                $('#td-perm-desc-' + editId).html(description);
+                                $('#editModal').modal('hide');
+                            }
+                        }
+                    });
+                }
+            });
+
+            /* Show edit-modal */
+            $( '#btn-new' ).click( function(){
+                $( '#editModal' ).modal( 'show' );
+            });
+
+            /* Delete edit-modal values when is hidding */
+            $('#editModal').on('hidden.bs.modal', function (e) {
+                $( '#name').val('');
+                $( '#description' ).val('');
+                $( '#name-lbl' ).removeClass( 'text-danger' );
+                $( '#description-lbl' ).removeClass( 'text-danger' );
+                $( '#name' ).removeClass( 'required' );
+                $( '#description' ).removeClass( 'required' );
+                $( '#name-p' ).html( '' );
+                $( '#description-p' ).html( '' );
+                editId = '-1';
+            });
+
+            /* Get permission to delete */
+            $( '#results-table' ).on( 'click', 'tr td button[name=btn-minus]', function() {
+                // Only show delete modal
+                deleteId = $( this ).attr( 'oid' );
+                $( '#deleteModal' ).modal( 'show' );
+            });
+
+            /* Delete permission */
+            $( '#btn-delete' ).click( function(){
+                $.ajax({
+                    type: 'DELETE',
+                    url: url.concat( '/' + deleteId ),
+                    success: function ( data ) {
+                        $( '#tr-' + deleteId ).remove();
+                        $( '#deleteModal' ).modal( 'hide' );
+                        deleteId = '';
+                    }
+                });
+            });
+
+            /* Show in red the label related with the input with errors */
+            function show_errors( dict ){
+                var fields = ['name','description'];
+                var field = '';
+
+                for (var i = 0; i < fields.length; i++){
+                    field = fields[i];
+                    if ($.inArray(field, Object.keys(dict)) != -1){
+                        $( '#' + field + '-lbl' ).addClass( 'text-danger' );
+                        $( '#' + field ).addClass( 'required' );
+                        $( '#' + field + '-p' ).html( dict[field] );
+                    } else {
+                        $( '#' + field + '-lbl' ).removeClass( 'text-danger' );
+                        $( '#' + field ).removeClass( 'required' );
+                        $( '#' + field + '-p' ).html( '' );
+                    }
+                }
+            }
+
+        });
+    </script>
+{% endblock %}

@@ -14,8 +14,6 @@ from .item import *
 from .offer import *
 from .permission import *
 from .role import *
-from .salesman import *
 from .team import *
-from .team_leader import *
 from .team_member import *
 

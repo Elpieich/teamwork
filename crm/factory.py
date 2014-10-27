@@ -3,7 +3,7 @@
 from flask import Flask
 from mongoengine import connect
 
-from .core import db, toolbar
+from .core import db, toolbar, login_manager, mail
 from .helpers import register_blueprints
 from .middlewares import HTTPMethodOverrideMiddleware
 
@@ -39,10 +39,11 @@ class Factory:
         app.config.from_object(settings_override)
         app.config.from_envvar(cls.SETTINGS_ENV, silent=True)
 
+        app.secret_key = '\xf9\x96\xcf\x1e.{\xc1\xb8\nM\xe7@\xad\xbc\x88PG%\x961A\x14\xd7g'
         db.init_app(app)
         toolbar.init_app(app)
-        # db.init_app(app)
-        # mail.init_app(app)
+        login_manager.init_app(app)
+        mail.init_app(app)
         # security.init_app(
         #     app,
         #     SQLAlchemyUserDatastore(db, User, Role),
@@ -50,6 +51,7 @@ class Factory:
 
         register_blueprints(app, package_name, package_path)
         app.wsgi_app = HTTPMethodOverrideMiddleware(app.wsgi_app)
+
 
         return app
 

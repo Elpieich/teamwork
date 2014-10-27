@@ -1,7 +1,6 @@
 # -*- encoding:utf-8 -*-
 
 from ..core import db
-import json
 
 
 class Role(db.Document):
@@ -24,8 +23,8 @@ class Role(db.Document):
     def get_description(self):
         return self.description
 
-    def set_description(self, desc):
-        self.description = desc
+    def set_description(self, description):
+        self.description = description
 
     def get_permissions(self):
         return self.permissions

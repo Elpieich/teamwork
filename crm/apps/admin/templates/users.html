@@ -1,0 +1,260 @@
+{% extends "base.html" %}
+
+{% block head %}
+    {{ super() }}
+{% endblock %}
+
+{% block title %} API Admin Users {% endblock %}
+
+{% block sidebar %}
+        <div class="col-sm-3 col-md-2 sidebar">
+          <ul class="nav nav-sidebar">
+            <li><a href="http://localhost:5000/admin/companies">Companies</a></li>
+          </ul>
+          <ul class="nav nav-sidebar">
+            <li class="active"><a href="http://localhost:5000/admin/users">API Admin Users</a></li>
+            <li><a href="http://localhost:5000/admin/roles">Roles</a></li>
+            <li><a href="http://localhost:5000/admin/permissions">Permissions</a></li>
+          </ul>
+          <ul class="nav nav-sidebar">
+            <li><a href="http://localhost:5000/admin/logs">Activity Log</a></li>
+          </ul>
+        </div>
+{% endblock %}
+
+{% block content %}
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+          <h1 class="page-header"> API Admin Users </h1>
+          <div class="row">
+            <div class="col-md-2">
+              <button type="button" class="btn btn-primary" id="btn-new">
+                  <span class="glyphicon glyphicon-plus"></span>
+              </button>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-striped" id="results-table">
+              <thead>
+                <tr>
+                  <th>id</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for user in users %}
+                <tr id="tr-{{ user.id }}">
+                  <td class="id">{{ user.id }}</td>
+                  <td id="td-comp-name-{{ user.id }}">{{ user.get_name()|e }}</td>
+                  <td id="td-comp-email-{{ user.id }}">{{ user.get_email()|e }}</td>
+                  <td>
+                    <button class="btn btn-link" name="btn-edit" oid="{{ user.id }}">
+                      <span class="glyphicon glyphicon-pencil"></span>
+                    </button>
+                    <button class="btn btn-link" name="btn-minus" oid="{{ user.id }}">
+                      <span class="glyphicon glyphicon-minus"></span>
+                    </button>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+{% endblock %}
+
+{% block editmodal %}
+    {{ super() }}
+{% endblock %}
+
+{% block editModalTitle%} User {% endblock %}
+
+{% block editModalBody %}
+            <div class="modal-body">
+              <div class="form-group">
+                <label id="name-lbl" for="name">Name</label>
+                <p id="name-p" class="text-danger"></p>
+                <input type="text" class="form-control" id="name" placeholder="Name" name="name">
+                <label id="email-lbl" for="email">Email</label>
+                <p id="email-p" class="text-danger"></p>
+                <input type="text" class="form-control" id="email" placeholder="Email" name="email">
+                <label id="password-lbl" for="password">Password</label>
+                <p id="password-p" class="text-danger"></p>
+                <input type="password" class="form-control" id="password" placeholder="" name="password">
+              </div>
+            </div>
+{% endblock %}
+
+{% block deletemodal %}
+    {{ super() }}
+{% endblock %}
+
+{% block deleteModalTitle%} Users {% endblock %}
+
+{% block deleteModalMsg%}
+    Are you sure you want to delete the selected user?
+{% endblock %}
+
+{% block another_js %}
+    <script type="text/javascript">
+        $( document ).ready( function() {
+            var url = 'http://localhost:5000/admin/users';
+            var deleteId = '';
+            var editId = '-1';
+
+            /* Get user to edit */
+            $( '#results-table' ).on( 'click', 'tr td button[name=btn-edit]', function() {
+
+                editId = $( this ).attr( 'oid' );
+
+                $.ajax({
+                    type: 'GET',
+                    url: url.concat('/' + editId),
+                    success: function ( data ) {
+                        var json = $.parseJSON( data );
+
+                        $( '#name' ).val( json[ 'name' ] );
+                        $( '#email' ).val( json[ 'email'] );
+                        $( '#password' ).val( json[ 'password' ] );
+                        $( '#editModal' ).modal( 'show' );
+                    }
+                });
+            });
+
+            $( '#btn-save' ).click( function(){
+                var name, email, password;
+
+                name = $( '#name' ).val();
+                email = $( '#email' ).val();
+                password = $( '#password' ).val();
+
+                var data_j = {
+                    name: name,
+                    email: email,
+                    password: password
+                };
+
+                if( editId == '-1' ){
+                /* Create new user */
+                    $.ajax({
+                        type: 'POST',
+                        url: url,
+                        contentType: 'application/json; charset=UTF-8',
+                        data: JSON.stringify( data_j ),
+                        success: function ( data ) {
+                            var id, buttons, tr, json = $.parseJSON( data );
+
+                            if( $.inArray('errors', Object.keys(json)) != -1 ){
+                                show_errors( json['errors'] );
+                            } else {
+                                id = json['_id'];
+                                name = json[ 'name' ];
+                                email = json[ 'email' ];
+
+                                buttons = '<td>' +
+                                        '<button class="btn btn-link" name="btn-edit" oid="' + id['$oid'] + '">' +
+                                        '<span class="glyphicon glyphicon-pencil"></span>' +
+                                        '</button>' +
+                                        '<button class="btn btn-link" name="btn-minus" oid="' + id['$oid'] + '">' +
+                                        '<span class="glyphicon glyphicon-minus"></span>' +
+                                        '</button></td>';
+                                tr = '<tr id=tr-' + id['$oid'] + '>' +
+                                        '<td>' + id['$oid'] + '</td>' +
+                                        '<td id="td-comp-name-' + id['$oid'] + '">' + name + '</td>' +
+                                        '<td id="td-comp-email-' + id['$oid'] + '">' + email + '</td>' +
+                                        buttons + '</tr>';
+                                /* Add row to the table */
+                                $('#results-table tr:last').after(tr);
+                                $('#editModal').modal('hide');
+                            }
+                        }
+                    });
+
+                } else {
+                /* Save edited user */
+                    $.ajax({
+                        type: 'POST',
+                        url: url.concat( '/' + editId ),
+                        contentType: 'application/json; charset=UTF-8',
+                        data: JSON.stringify( data_j ),
+                        success: function ( data ) {
+                            var json = $.parseJSON( data );
+
+                            if( $.inArray('errors', Object.keys(json)) != -1 ){
+                                show_errors( json['errors'] );
+                            } else {
+                                // Update row values
+                                $('#td-comp-name-' + editId).html(name);
+                                $('#td-comp-email-' + editId).html(email);
+                                $('#editModal').modal('hide');
+                            }
+                        }
+                    });
+                }
+            });
+
+            /* Show edit-modal */
+            $( '#btn-new' ).click( function(){
+                $( '#editModal' ).modal( 'show' );
+            });
+
+            /* Delete edit-modal values when is hidding */
+            $('#editModal').on('hidden.bs.modal', function (e) {
+                $( '#name').val('');
+                $( '#email' ).val('');
+                $( '#password' ).val( '' );
+                $( '#name').removeClass('required');
+                $( '#email' ).removeClass('required');
+                $( '#password' ).removeClass( 'required' );
+                $( '#name-lbl').removeClass('text-danger');
+                $( '#email-lbl' ).removeClass('text-danger');
+                $( '#password-lbl' ).removeClass( 'text-danger' );
+                $( '#name-p').html('');
+                $( '#email-p' ).html('');
+                $( '#password-p' ).html( '' );
+                editId = '-1';
+            });
+
+            /* Get company to delete */
+            $( '#results-table' ).on( 'click', 'tr td button[name=btn-minus]', function() {
+                // Only show delete modal
+                deleteId = $( this ).attr( 'oid' );
+                $( '#deleteModal' ).modal( 'show' );
+            });
+
+            /* Delete company */
+            $( '#btn-delete' ).click( function(){
+                $.ajax({
+                    type: 'DELETE',
+                    url: url.concat( '/' + deleteId ),
+                    success: function ( data ) {
+                        $( '#tr-' + deleteId ).remove();
+                        $( '#deleteModal' ).modal( 'hide' );
+                        deleteId = '';
+                    }
+                });
+            });
+
+            /* Show in red the label related with the input with errors */
+            function show_errors( dict ){
+                var fields = ['name','email', 'password'];
+                var field = '';
+
+                for (var i = 0; i < fields.length; i++){
+                    field = fields[i];
+                    if ($.inArray(field, Object.keys(dict)) != -1){
+                        $( '#' + field + '-lbl' ).addClass( 'text-danger' );
+                        $( '#' + field ).addClass( 'required' );
+                        $( '#' + field + '-p' ).html( dict[field] );
+                    } else {
+                        $( '#' + field + '-lbl' ).removeClass( 'text-danger' );
+                        $( '#' + field ).removeClass( 'required' );
+                        $( '#' + field + '-p' ).html( '' );
+                    }
+                }
+            }
+
+        });
+    </script>
+{% endblock %}

@@ -11,7 +11,7 @@ from werkzeug.exceptions import NotFound
 from werkzeug.serving import run_simple
 from werkzeug.wsgi import DispatcherMiddleware
 
-from crm.apps import website, api
+from crm.apps import website, api, admin
 
 
 class SubdomainDispatcher(object):
@@ -41,7 +41,8 @@ class SubdomainDispatcher(object):
 def make_app(subdomain):
     apps = {
         '': website.create_app,
-        'api': api.create_app
+        'api': api.create_app,
+		'admin': admin.create_app
     }
 
     if not subdomain in apps:
