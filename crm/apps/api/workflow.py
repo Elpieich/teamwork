@@ -62,7 +62,7 @@ def process_stages(process_id):
     Regresa una lista de stages de proceso
     """
     service = process()
-    return service.get(process_id, full=True)
+    return service.get_stages(process_id)
 
 @route(bp, '/processes/search')
 def processes_search():

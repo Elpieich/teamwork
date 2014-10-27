@@ -4,6 +4,7 @@ import werkzeug.exceptions
 
 from functools import wraps
 from itertools import chain
+from bson import json_util
 from flask import request, jsonify, current_app
 
 from .core import db
@@ -33,8 +34,22 @@ def route(bp, *args, **kwargs):
         @wraps(fn)
         def wrapper(*args, **kwargs):
             sc = 200
-            rv = fn(*args, **kwargs).to_json()
-            print rv
+
+            try:
+                rv = fn(*args, **kwargs)
+
+                if hasattr(rv, 'to_json'):
+                    print 'to_json'
+                    rv = rv.to_json()
+                else:
+                    print 'dumps'
+                    rv = json_util.dumps(rv)
+
+            except db.DoesNotExist:
+                raise werkzeug.exceptions.ImATeapot
+            except db.ValidationError:
+                raise werkzeug.exceptions.ImATeapot
+
             if isinstance(rv, tuple):
                 sc = rv[1]
                 rv = rv[0]
@@ -82,7 +97,8 @@ class Service(object):
     @content_type(*CONTENT_TYPES)
     @authenticity
     def __init__(self):
-        if 'POST' in request.method:
+        methods = ('POST', 'UPDATE', 'DELETE', )
+        if set(methods) & set([request.method]):
             self.__request__ = request.get_json()
 
 
@@ -120,9 +136,6 @@ class Service(object):
         """Returns a generator containing all instances of the service's model.
         """
         return self.__model__.objects()
-
-
-
 
     def get(self, id):
         """Returns an instance of the service's model with the specified id.
@@ -164,10 +177,6 @@ class Service(object):
         """
         return self.__model__.query.get_or_404(id)
 
-
-
-
-
     def new(self, **kwargs):
         """Returns a new, unsaved instance of the service's model class.
 
@@ -185,28 +194,24 @@ class Service(object):
         instance = self.new(**parameters)
         return self.save(instance)
 
-
-
-
-
-
-    def update(self, instance, **kwargs):
+    def update(self, id, **kwargs):
         """Returns an updated instance of the service's model class.
 
         :param model: the model to update
         :param **kwargs: update parameters
         """
+        parameters = dict(chain(self.__request__.items(), kwargs.items()))
+        instance = self.get(id=id)
         self._isinstance(instance)
-        for field, value in self._preprocess_params(kwargs).items():
+        for field, value in self._preprocess_params(**parameters).items():
             setattr(instance, field, value)
         return self.save(instance)
 
-    def delete(self, instance):
+    def delete(self, id):
         """Immediately deletes the specified model instance.
 
         :param model: the model instance to delete
         """
+        instance = self.get(id)
         self._isinstance(instance)
-        db.session.delete(instance)
-        db.session.commit()
-        # context manager support
+        return instance.delete()
