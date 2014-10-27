@@ -1,13 +1,11 @@
 # -*- encoding:utf-8 -*-
 
-from crm.core import db
-from .user import User
-from .team import Team
+from ..core import db
+from . import User
 
+class Admin(User):
 
-class Admin(db.Document, User):
-
-    teams = db.ListReference(db.ReferenceFiedl(Team))
+    teams = db.ListField(db.ReferenceField('Team'))
 
     def add_team(self):
         pass

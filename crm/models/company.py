@@ -1,19 +1,18 @@
 # -*- encoding:utf-8 -*-
 
-from crm.core import db
+from flask_mail import Message
+from ..core import db, mail
+import json
 
 
 class Company(db.Document):
-    id = db.IntField(primary_key=True, required=True)
-    name = db.StringField()
-    direction = db.StringField()
+    name = db.StringField(required=True, min_length=1, max_length=140)
+    direction = db.StringField(required=True, min_length=1, max_length=140)
+    admin = db.ReferenceField('User')
 
     def get_id(self):
         return self.id
-
-    def set_id(self, id):
-        self.id = id
-
+        
     def get_name(self):
         return self.name
 
@@ -23,6 +22,11 @@ class Company(db.Document):
     def get_direction(self):
         return self.direction
 
-    def set_direction(self, dir):
-        self.direction = dir
-        
+    def set_direction(self, direction):
+        self.direction = direction
+
+    def get_admin(self):
+        return self.admin
+
+    def set_admin(self, admin):
+        self.admin = admin

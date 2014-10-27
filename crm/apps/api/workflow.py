@@ -162,7 +162,7 @@ def task_update(task_id):
     service = task()
     return service.update(task_id)
 
-@route(bp, '/tasks/<task_id>', method=["DELETE"])
+@route(bp, '/tasks/<task_id>', methods=["DELETE"])
 def task_delete(task_id):
     """Elimina una instancia de stage de proceso
     de una empresa

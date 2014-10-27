@@ -1,7 +1,6 @@
 # -*- encoding:utf-8 -*-
 
 from ..core import db
-from ..helpers import JsonSerializer
 
 
 #DynamicDocument -> agregar campos en ejecución y los guarda
@@ -12,23 +11,23 @@ from ..helpers import JsonSerializer
 #foro 21 oct  3pm a 7pm sum prepa 2
 
 
-
 TYPES = (
     ('SALES', 'SALES', ))
 
 
 class ProcessTemplate(db.Document):
-    name = db.StringField(max_length=40,
-                          required=True)
-    description = db.StringField(max_length=140,
-                                 required=True)
+    name = db.StringField(max_length=40, required=True)
+    description = db.StringField(max_length=140, required=True)
     type = db.StringField(choices=TYPES)
-    company = db.ReferenceField('Company')
+    company = db.ReferenceField('Company', reverse_delete_rule=db.CASCADE)
     stage_templates = db.ListField(db.EmbeddedDocumentField('StageTemplate'))
 
     meta = {
         'allow_inheritance': True
     }
+
+    def get_id(self):
+        return self.id
 
     def get_name(self):
         return self.name
@@ -57,9 +56,11 @@ class ProcessTemplate(db.Document):
     def get_stage_templates(self):
         return self.stage_templates
 
-    def set_stage_templates(self, stage_templates):
-        self.stage_templates = stage_templates
+    def set_stage_templates(self, stage_template):
+        self.stage_templates.append(stage_template)
 
-
-
-
+    def get_stage_template(self, stage_id):
+        for stage in self.stage_templates:
+            if stage.get_id() == stage_id:
+                return stage
+        return None

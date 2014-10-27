@@ -1,22 +1,26 @@
 # -*- encoding:utf-8 -*-
 
-from crm.core import db
+from itsdangerous import URLSafeTimedSerializer
+from flask_mail import Message
+import json
+
+from ..core import db, mail
+
+
+login_serializer = URLSafeTimedSerializer('FLAKSDJFdLKJ98798}{}{}KAJSDHFK22a')
 
 
 class User(db.Document):
-    first_name = db.StringField()
-    last_name = db.StringField()
-    email = db.EmailField()
-    #role = db.ReferenceField('Role')
-    #company = db.ReferenceField('Company')
+    name = db.StringField(required=True, min_length=4, max_length=140)
+    password = db.StringField(required=True, min_length=8, max_length=50)
+    token = db.StringField()
+    email = db.EmailField(required=True, unique=True)
+    role = db.ReferenceField('Role')
 
     meta = {'allow_inheritance': True}
 
     def get_id(self):
         return self.id
-
-    def set_id(self, id):
-        self.id = id
 
     def get_name(self):
         return self.name
@@ -36,8 +40,21 @@ class User(db.Document):
     def set_role(self, role):
         self.role = role
 
-    def get_company(self):
-        return self.company
+    def get_password(self):
+        return self.password
 
-    def set_company(self, company):
-        self.company = company
+    def set_password(self, password):
+        self.password = password
+
+    def is_authenticated(self):
+        return True
+
+    def is_active(self):
+        return True
+
+    def is_anonymous(self):
+        return False
+
+    def get_token(self):
+        return self.token
+

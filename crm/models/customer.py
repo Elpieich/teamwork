@@ -1,12 +1,10 @@
 # -*- encoding:utf-8 -*-
 
-from crm.core import db
-from .user import User
-from .sale import Sale
+from ..core import db
 
 
-class Customer(db.Document, User):
-    sales = db.ListField(db.ReferenceField(Sale))
+class Customer(db.Document):
+    processes = db.ListField(db.ReferenceField('Process'))
 
     def reply_offer(self):
         pass

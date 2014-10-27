@@ -1,13 +1,13 @@
 # -*- encoding:utf-8 -*-
 
-from crm.core import db
+from ..core import db
 
 
 STATUS = (
-    'Abierta',
-    'En espera',
-    'Cancelada',
-    'Cerrada')
+    ('A', 'Abierta', ),
+    ('B', 'En espera', ),
+    ('C', 'Cancelada', ),
+    ('D', 'Cerrada'), )
 
 
 class Process(db.Document):
@@ -18,25 +18,22 @@ class Process(db.Document):
         max_length=140,
         required=True)
     template = db.ReferenceField('ProcessTemplate')
-    #team = db.ReferenceField('Team')
-    #manager = db.ReferenceField('User')
-    status = db.ReferenceField('ProcessStatus')
+    team = db.ReferenceField('Team')
+    manager = db.ReferenceField('User')
+    status = db.StringField(choices=STATUS)
     stages = db.ListField(
         db.ReferenceField('Stage'))
     parent = db.ReferenceField('Process')
     variables = db.ListField()
 
     def get_id(self):
-        return self.__id__
-
-    def set_id(self, id):
-        self.__id__ = id
+        return self.id
 
     def get_process(self):
-        return self.__process__
+        return self.process
 
     def set_process(self, process):
-        self.__process__ = process
+        self.process = process
 
     def add_offer(self, offer):
         pass
@@ -44,17 +41,17 @@ class Process(db.Document):
     def remove_offer(self, offer):
         pass
 
-    def get_offers(self):
-        return self.__offers__
+    # def get_offers(self):
+    #     return self.offers
 
     def get_latest_offer(self):
         pass
 
     def get_status(self):
-        return self.__status__
+        return self.status
 
-    def get_customer(self):
-        return self.__customer__
+    # def get_customer(self):
+    #     return self.__customer__
 
-    def set_customer(self, customer):
-        self.__customer__ = customer
+    # def set_customer(self, customer):
+    #     self.__customer__ = customer

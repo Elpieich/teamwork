@@ -1,11 +1,9 @@
 # -*- encoding:utf-8 -*-
 
-import zope.interface
-
-from .user import User
+from . import User
 
 
-class Salesman(User, zope.interface.Interface):
+class Salesman(User):
 
     def register_sale(sale):
         "We don't need to call to self"

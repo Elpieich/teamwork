@@ -1,54 +1,54 @@
 # -*- encoding:utf-8 -*-
 
-from crm.core import db
-from .sale import Sale
-from .team_member import TeamMember
-from .team_leader import TeamLeader
+from ..core import db
 
 
 class Team(db.Document):
-    __id__ = db.IntField(
-        primary_key=True,
-        required=True)
-    __name__ = db.StringField()
-    __team_members__ = db.ListReference(
-        db.FieldReference(TeamMember))
-    __team_leader__ = db.ReferenceField(TeamLeader)
-    __sales__ = db.ListReference(
-        db.FieldReference(Sale))
+    name = db.StringField()
+    members = db.ListField(db.ReferenceField('User'))
+    leader = db.ReferenceField('User')
+    processes = db.ListField(db.ReferenceField('Process'))
 
     def get_id(self):
-        return self.__id__
-
-    def set_id(self, id):
-        self.__id__ = id
+        return self.id
 
     def get_name(self):
-        return self.__name__
+        return self.name
 
     def set_name(self, name):
-        self.__name__ = name
+        self.name = name
 
-    def add_team_member(self):
-        pass
+    def get_members(self):
+        return self.members
 
-    def remove_team_member(self):
-        pass
+    def get_member(self, member_id):
+        for member in self.members:
+            if member.get_id() == member_id:
+                return member
 
-    def get_team_members(self):
-        return self.__team_members__
+    def set_member(self, member):
+        self.members.append(member)
 
-    def set_team_leader(self, team_leader):
-        self.__team_leader__ = team_leader
+    def delete_member(self, member):
+        self.member.remove(member)
 
-    def get_team_leader(self):
-        return self.__team_leader__
+    def set_leader(self, leader):
+        self.leader = leader
 
-    def remove_team_leader(self):
-        pass
+    def get_leader(self):
+        return self.leader
 
-    def add_sale(self):
-        pass
+    def set_process(self, process):
+        self.processes.append(process)
 
-    def remove_sale(self):
-        pass
+    def get_processes(self):
+        return self.processes
+
+    def get_process(self, process_id):
+        for process in self.processes:
+            if process.get_id() == process_id:
+                return process
+        return None
+
+    def delete_process(self, process):
+        self.processes.remove(process)

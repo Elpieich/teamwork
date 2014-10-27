@@ -1,6 +1,6 @@
 # -*- encoding:utf-8 -*-
 
-#from flask_mail import Mail
+from flask_mail import Mail
 # from flask_sqlalchemy import SQLAlchemy
 # from flask_security import Security, SQLAlchemyUserDatastore
 
@@ -12,7 +12,7 @@ from flask_security import Security, MongoEngineUserDatastore
 #    UserMixin, RoleMixin, login_required
 
 #db = SQLAlchemy()
-#mail = Mail()
+mail = Mail()
 #security = Security()
 #social = Social()
 db = MongoEngine()

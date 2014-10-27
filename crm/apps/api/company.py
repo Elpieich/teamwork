@@ -8,7 +8,7 @@
 
 from flask import Blueprint, request
 
-# from crm.services import company, item, offer, team, user
+from crm.services import company, item, offer, team, user
 from crm.service import route
 
 
@@ -41,39 +41,46 @@ def company_detail(company_id):
     return service.get(company_id)
 
 @route(bp, '/companies/<company_id>/all')
-def company_detail(company_id):
+def company_detail_all(company_id):
     """
     """
     service = company()
     return service.get(company_id, full=True)
 
-@route(bp, '/companies/<company_id>/members')
-def company_detail(company_id):
+@route(bp, '/companies/<company_id>/<field>')
+def company_detail_field(company_id, field):
     """
     """
     service = company()
-    return service.get(company_id, field='members')
+    return service.get(company_id, field=field)
 
-@route(bp, '/companies/<company_id>/teams')
-def company_detail(company_id):
-    """
-    """
-    service = company()
-    return service.get(company_id, field='teams')
+# @route(bp, '/companies/<company_id>/members')
+# def company_detail(company_id):
+#     """
+#     """
+#     service = company()
+#     return service.get(company_id, field='members')
 
-@route(bp, '/companies/<company_id>/items')
-def company_detail(company_id):
-    """
-    """
-    service = company()
-    return service.get(company_id, field='items')
+# @route(bp, '/companies/<company_id>/teams')
+# def company_detail(company_id):
+#     """
+#     """
+#     service = company()
+#     return service.get(company_id, field='teams')
 
-@route(bp, '/companies/<company_id>/processes')
-def company_detail(company_id):
-    """
-    """
-    service = company()
-    return service.get(company_id, field='processes')
+# @route(bp, '/companies/<company_id>/items')
+# def company_detail(company_id):
+#     """
+#     """
+#     service = company()
+#     return service.get(company_id, field='items')
+
+# @route(bp, '/companies/<company_id>/processes')
+# def company_detail(company_id):
+#     """
+#     """
+#     service = company()
+#     return service.get(company_id, field='processes')
 
 @route(bp, '/companies/<company_id>', methods=['UPDATE'])
 def company_update(company_id):

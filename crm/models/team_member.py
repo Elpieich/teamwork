@@ -1,13 +1,10 @@
 # -*- encoding:utf-8 -*-
 
-import zope.interface
-
-from crm.core import db
-from .salesman import Salesman
+from ..core import db
+from . import User
 
 
-class TeamMember(db.Document):
-    zope.interface.implements(Salesman)
+class Member(User, db.EmbeddedDocument):
 
     def register_sale(self, sale):
         pass

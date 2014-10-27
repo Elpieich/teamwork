@@ -1,18 +1,18 @@
 # -*- encoding:utf-8 -*-
 
-from crm.core import db
+from ..core import db
+import json
 
 
 class Permission(db.Document):
-    id = db.IntField(primary_key=True, required=True)
-    name = db.StringField()
-    description = db.StringField()
-
-    def get_id(self):
-        return self.id
-
-    def set_id(self, id):
-        self.id = id
+    name = db.StringField(
+        required=True,
+        min_length=1,
+        max_length=140)
+    description = db.StringField(
+        required=True,
+        min_length=1,
+        max_length=140)
 
     def get_name(self):
         return self.name
@@ -25,3 +25,4 @@ class Permission(db.Document):
 
     def set_description(self, desc):
         self.description = desc
+
