@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-    crm.services.process
+    crm.services.process_template
     ~~~~~~~~~~~~~~~~~~~~
 
-    crm proceses service
+    crm process_template service
 """
 
 from flask import jsonify, current_app

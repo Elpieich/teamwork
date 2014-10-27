@@ -1,22 +1,22 @@
 # -*- coding: utf-8 -*-
 """
-    crm.services.process
+    crm.services.role
     ~~~~~~~~~~~~~~~~~~~~
 
-    crm proceses service
+    crm role service
 """
 
 from flask import jsonify, current_app
 
 from ..service import Service
-from ..models import Process
+from ..models import Role
 
 
-class ProcessService(Service):
-    __model__ = Process
+class RoleService(Service):
+    __model__ = Role
 
     def __init__(self, *args, **kwargs):
-        super(ProcessService, self).__init__(*args, **kwargs)
+        super(RoleService, self).__init__(*args, **kwargs)
         #self.categories = CategoryService()
 
 

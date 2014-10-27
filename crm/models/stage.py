@@ -12,7 +12,7 @@ class Step(JsonSerializer, db.Document):
         max_length=40)
     template = db.ReferenceField('StageTemplate')
     process = db.ReferenceField('Process')
-    sub = db.ReferenceField('Process')
+    #sub = db.ReferenceField('Process')
     template = db.ReferenceField('StageTemplate')
     #manager = db.ReferenceField('User')
     status = db.ReferenceField('StageStatus')

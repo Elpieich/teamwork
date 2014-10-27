@@ -1,9 +1,6 @@
 # -*- encoding:utf-8 -*-
 
 from crm.core import db
-from .offer import Offer
-from .process import Process
-from .customer import Customer
 
 
 STATUS = (
@@ -13,7 +10,7 @@ STATUS = (
     'Cerrada')
 
 
-class Process(JsonSerializer, db.Document):
+class Process(db.Document):
     name = db.StringField(
         max_length=40,
         required=True)

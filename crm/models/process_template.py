@@ -14,8 +14,7 @@ from ..helpers import JsonSerializer
 
 
 TYPES = (
-    'SALES'
-    )
+    ('SALES', 'SALES', ))
 
 
 class ProcessTemplate(db.Document):

@@ -8,89 +8,183 @@
 
 from flask import Blueprint, request
 
+# from crm.services import company, item, offer, team, user
 from crm.service import route
+
 
 bp = Blueprint('company', __name__)
 
+
+#
+#    COMPANIES
+#   -----------
+#
 @route(bp, '/companies')
-def list_companies():
-    """Returns a list of companies instances."""
-    #return users.all()
-    return {'items': 'all'}
+def companies():
+    """
+    """
+    service = company()
+    return service.all()
+
+@route(bp, '/companies', methods=['POST'])
+def company_create():
+    """
+    """
+    service = company()
+    return service.create()
+
+@route(bp, '/companies/<company_id>')
+def company_detail(company_id):
+    """
+    """
+    service = company()
+    return service.get(company_id)
+
+@route(bp, '/companies/<company_id>/all')
+def company_detail(company_id):
+    """
+    """
+    service = company()
+    return service.get(company_id, full=True)
+
+@route(bp, '/companies/<company_id>/members')
+def company_detail(company_id):
+    """
+    """
+    service = company()
+    return service.get(company_id, field='members')
+
+@route(bp, '/companies/<company_id>/teams')
+def company_detail(company_id):
+    """
+    """
+    service = company()
+    return service.get(company_id, field='teams')
+
+@route(bp, '/companies/<company_id>/items')
+def company_detail(company_id):
+    """
+    """
+    service = company()
+    return service.get(company_id, field='items')
+
+@route(bp, '/companies/<company_id>/processes')
+def company_detail(company_id):
+    """
+    """
+    service = company()
+    return service.get(company_id, field='processes')
+
+@route(bp, '/companies/<company_id>', methods=['UPDATE'])
+def company_update(company_id):
+    """
+    """
+    service = company()
+    return service.update(company_id)
+
+@route(bp, '/companies/<company_id>', methods=['DELETE'])
+def company_delete(company_id):
+    """
+    """
+    service = company()
+    return service.delete(company_id)
+
+@route(bp, '/companies/search')
+def companies_search():
+    """
+    """
+    service = company()
+    return service.find()
 
 
-@route(bp, '/company', methods=['POST'])
-def create_company():
-    """Creates a new company. Returns the new company instance."""
-    # form = NewCompanyForm()
-    # if form.validate_on_submit():
-    #     return products.create(**request.json)
-    # raise OverholtFormError(form.errors)
-    pass
+#
+#    MEMBERS
+#   ---------
+#
+@route(bp, '/members')
+def members():
+    """
+    """
+    service = member()
+    return service.all()
 
+@route(bp, '/members', methods=['POST'])
+def member_create():
+    """
+    """
+    service = member()
+    return service.create()
 
-@route(bp, '/company/<company_id>')
-def detail_company(company_id):
-    """Returns a company instance."""
-    # return company.get_or_404(company_id)
-    pass
+@route(bp, '/members/<member_id>')
+def member_detail(member_id):
+    """
+    """
+    service = member()
+    return service.get(member_id)
 
+@route(bp, '/members/<member_id>', methods=['PUT'])
+def member_update(member_id):
+    """
+    """
+    service = member()
+    return service.update(member_id)
 
-@route(bp, '/company/<company_id>', methods=['PUT'])
-def update_company(company_id):
-    """Updates a company. Returns a company instance."""
-    # form = UpdateProductForm()
-    # if form.validate_on_submit():
-    #     return company.update(company.get_or_404(company_id), **request.json)
-    # raise(OverholtFormError(form.errors))
-    pass
+@route(bp, '/members/<member_id>', methods=['DELETE'])
+def member_delete(member_id):
+    """
+    """
+    service = member()
+    return service.delete(member_id)
 
+@route(bp, '/members/search')
+def members_search():
+    """
+    """
+    service = member()
+    return service.find()
 
-@route(bp, '/company/<company_id>', methods=['DELETE'])
-def delete_company(company_id):
-    """Deletes a company. Returns a 204 response."""
-    # company.delete(company.get_or_404(company_id))
-    # return None, 204
-    pass
-
-
+#
+#    ITEMS
+#   -------
+#
 @route(bp, '/items')
-def list_items():
-    """Returns a list of items instances."""
-    #return items.all()
-    return {'items': 'all'}
+def items():
+    """
+    """
+    service = item()
+    return service.all()
 
+@route(bp, '/items', methods=['POST'])
+def item_create():
+    """
+    """
+    service = item()
+    return service.create()
 
-@route(bp, '/item', methods=['POST'])
-def create_item():
-    """Creates an new item. Returns the new item instance."""
-    # form = NewCompanyForm()
-    # if form.validate_on_submit():
-    #     return products.create(**request.json)
-    # raise OverholtFormError(form.errors)
-    pass
+@route(bp, '/items/<item_id>')
+def item_detail(item_id):
+    """
+    """
+    service = item()
+    return service.get(item_id)
 
-
-@route(bp, '/item/<item_id>')
-def detail_item(item_id):
-    """Returns an item instance."""
-    # return item.get_or_404(item_id)
-    pass
-
-
-@route(bp, '/item/<item_id>', methods=['PUT'])
-def update_item(item_id):
-    """Updates an item. Returns an item instance."""
-    # form = UpdateProductForm()
-    # if form.validate_on_submit():
-    #     return item.update(item.get_or_404(item_id), **request.json)
-    # raise(OverholtFormError(form.errors))
-    pass
-
+@route(bp, '/items/<item_id>', methods=['PUT'])
+def item_update(item_id):
+    """
+    """
+    service = item()
+    return service.update(item_id)
 
 @route(bp, '/item/<item_id>', methods=['DELETE'])
-def delete_item(item_id):
-    """Deletes an item. Returns a 204 response."""
-    # item.delete(item.get_or_404(company_id))
-    # return None, 204
-    pass
+def item_delete(item_id):
+    """
+    """
+    service = item()
+    return service.delete(item_id)
+
+@route(bp, '/items/search')
+def items_search():
+    """
+    """
+    service = item()
+    return service.find()

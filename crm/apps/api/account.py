@@ -8,44 +8,52 @@
 
 from flask import Blueprint, request
 
-from crm.service import route
+# from crm.services import user
+# from crm.service import route
 
 
-bp = Blueprint('account', __name__, url_prefix='/account')
+# bp = Blueprint('account', __name__, url_prefix='/account')
 
 
-@route(bp, '/')
-def account():
-    """Returns a list of product instances."""
-    return products.all()
+# @route(bp, '/')
+# def account():
+#     """Regresa una lista de cuentas de toda la
+#     empresa
+#     """
+#     service = user()
+#     return service.all()
 
+# @route(bp, '/', methods=['POST'])
+# def account_create():
+#     """Crea una nueva cuenta para la empresa
+#     """
+#     service = user()
+#     return service.create()
 
-@route(bp, '/', methods=['POST'])
-def account_create():
-    """Creates a new product. Returns the new product instance."""
-    form = NewProductForm()
-    if form.validate_on_submit():
-        return products.create(**request.json)
-    raise OverholtFormError(form.errors)
+# @route(bp, '/<account_id>')
+# def account_profile(account_id):
+#     """Regresa el perfil de un usuario
+#     """
+#     service = user()
+#     return service.get(account_id)
 
+# @route(bp, '/<account_id>', methods=['UPDATE'])
+# def account_update(account_id):
+#     """Actualiza una cuenta de una empresa
+#     """
+#     service = user()
+#     return service.update(account_id)
 
-@route(bp, '/settings')
-def show(product_id):
-    """Returns a product instance."""
-    return products.get_or_404(product_id)
+# @route(bp, '/<account_id>', methods=['DELETE'])
+# def account_delete(account_id):
+#     """Elimina una cuenta de una empresa
+#     """
+#     service = user()
+#     return service.delete(account_id)
 
-
-@route(bp, '/settings', methods=['POST'])
-def update(product_id):
-    """Updates a product. Returns the updated product instance."""
-    form = UpdateProductForm()
-    if form.validate_on_submit():
-        return products.update(products.get_or_404(product_id), **request.json)
-    raise(OverholtFormError(form.errors))
-
-
-@route(bp, '/<product_id>', methods=['DELETE'])
-def delete(product_id):
-    """Deletes a product. Returns a 204 response."""
-    products.delete(products.get_or_404(product_id))
-    return None, 204
+# @route(bp, '/<account_id>/settings')
+# def account_settings(account_id):
+#     """Regresa los ajustes de una cuenta
+#     """
+#     service = user()
+#     return service.get(account_id, full=True)

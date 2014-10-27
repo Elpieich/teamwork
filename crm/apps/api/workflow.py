@@ -8,179 +8,174 @@
 
 from flask import Blueprint, request
 
-#from crm.services import process, stage, task
+from crm.services import process, stage, task
 from crm.service import route
 
 
-bp = Blueprint('workflow', __name__, url_prefix='/processes')
+bp = Blueprint('workflow', __name__)
 
 
-@route(bp, '/')
+#
+#    PROCESSES
+#   -----------
+#
+@route(bp, '/processes')
 def processes():
     """
     Regresa una lista con todos los procesos de una empresa
     """
-    return process.all()
+    service = process()
+    return service.all()
 
+@route(bp, '/processes', methods=['POST'])
+def process_create():
+    """Crea una instancia de proceso de una empresa
+    """
+    service = process()
+    return service.create()
 
-@route(bp, '/show/<process_id>')
+@route(bp, '/processes/<process_id>')
 def process_detail(process_id):
     """
     Regresa una instancia de proceso de una empresa
     """
-    detail = Process.objects(id=process_id)
+    service = process()
+    return service.get(process_id)
 
-    # EN TEORIA EL SHOW DE ARRIBA Y LA FUNCION DE ABAJO DEBERIAN HACER LO MISMO
-    # CUANDO SE LLAME UN PROCESO DEBE VENIR CON TODO Y TODO
-    # @route(bp, '/stage/<process_id>')
-    # def stage_list(process_id):
-    # """
-    # Regresa una lista de stages de proceso
-    # """
-    # process = Process.objects.get(id=process_id)
-    # stages = process.get_stages()
-    # all_stages = {}
-    # count =  0
-    # for e in stages:
-    #     all_stages[count] = e.to_json()
-    #     count = count + 1
-
-    # return {'stage detail': all_stages }
-
-    return {'process detail': detail.to_json()}
-
-
-@route(bp, '/update/<process_id>', methods=['POST'])
+@route(bp, '/processes/<process_id>', methods=['UPDATE'])
 def process_update(process_id):
-    """Actualiza una instancia de proceso de una empresa"""
-    title = request.form['title']
-    process = Process.objects(id=process_id)
-    process.update(set__title=title)
-    p = Process.objects(id=process_id)
+    """Actualiza una instancia de proceso de una empresa
+    """
+    service = process()
+    return service.update(process_id)
 
-    return {'process updated': p.to_json()}
+@route(bp, '/processes/<process_id>', methods=['DELETE'])
+def process_delete(process_id):
+    """Elimina una instancia de proceso de una empresa
+    """
+    service = process()
+    return service.delete(process_id)
 
+@route(bp, '/processes/<process_id>/stages')
+def process_stages(process_id):
+    """
+    Regresa una lista de stages de proceso
+    """
+    service = process()
+    return service.get(process_id, full=True)
 
-@route(bp, '/create', methods=['POST'])
-def process_create():
-    """Crea una instancia de proceso de una empresa"""
-    p = Process()
-    p.set_title(request.form['title'])
-    p.save()
-    id_ = str(p.id)
-
-    return {'process': p.get_title(), 'id': id_}
-
-
-@route(bp, '/destroy/<process_id>')
-def process_destroy(process_id):
-    """Elimina una instancia de proceso de una empresa"""
-    p = Process.objects(id=process_id)
-    p.delete()
-
-    return {'processes': 'destroyed'}
+@route(bp, '/processes/search')
+def processes_search():
+    """
+    Regresa una lista con todos los procesos 
+    de una empresa que coinciden con los filtros
+    de busqueda
+    """
+    service = process()
+    return service.find()
 
 
 #
-#   CRUD STAGE
-#   ----------
+#    STAGES
+#   --------
 #
+@route(bp, '/stages', methods=['POST'])
+def stage_create():
+    """
+    Crea una instancia de stage de proceso 
+    de una empresa
+    """
+    service = stage()
+    return service.create()
 
-@route(bp, '/stage/show/<stage_id>')
+@route(bp, '/stages/<stage_id>')
 def stage_detail(stage_id):
     """
     Regresa una instancia de stage de proceso
     de una empresa
     """
-    stage = Stage.objects(id=stage_id)
+    service = stage()
+    return service.get(stage_id)
 
-    return {'stage detail': stage.to_json()}
-
-
-@route(bp, '/stage/create', methods=['POST'])
-def stage_create():
-    """
-    Crea una instancia de stage de proceso de una empresa
-    """
-    # SERIA MEJOR SI EL ID DEL PROCESO PADRE SE RECIBE
-    # EN EL POST
-    process = Process.objects.get(id=process_id)
-    stage = Stage()
-    stage.set_title(request.form['title'])
-    stage.save()
-    process.get_stages().append(stage)
-    process.save()
-
-    return {'stage': stage.to_json()}
-
-
-@route(bp, '/stage/update/<stage_id>', methods=['POST'])
+@route(bp, '/stages/<stage_id>', methods=['UPDATE'])
 def stage_update(stage_id):
     """
     Actualiza una instancia de stage de proceso
     de una empresa
     """
-    title = request.form['title']
-    Stage.objects(id=stage_id).update_one(set__title=title)
-    stage = Stage.objects(id=stage_id)
+    service = stage()
+    return service.update(stage_id)
 
-    return {'stage updated': stage.to_json()}
-
-
-@route(bp, '/stage/destroy/<stage_id>')
-def stage_destroy(stage_id):
+@route(bp, '/stages/<stage_id>', methods=['DELETE'])
+def stage_delete(stage_id):
     """
     Elimina una instancia de stage de proceso
     de una empresa
     """
-    stage = Stage.objects(id=stage_id)
-    stage.delete()
-    return {'stage': 'deleted'}
+    service = stage()
+    return service.delete(stage_id)
+
+@route(bp, '/stages/<stage_id>/tasks')
+def stage_tasks(stage_id):
+    """
+    Regresa una instancia de stage con la lista de
+    task completa
+    """
+    service = stage()
+    return service.get(stage_id, full=True)
+
+@route(bp, '/stages/search')
+def stages_search():
+    """
+    Regresa una lista con todos los stages de una empresa que coinciden 
+    con los filtros de busqueda
+    """
+    service = stage()
+    return service.find()
 
 
 #
-#   CRUD TASK
-#   ---------
-
-@route(bp, '/task/show/<task_id>')
-def task_detail(task_id):
-    """Regresa una instancia de stage de proceso
-    de una empresa"""
-    # return products.get_or_404(product_id)
-    task = Task.objects(id=task_id)
-
-    return {'task detail': task.to_json()}
-
-
-@route(bp, '/task/update/<task_id>', methods=['POST'])
-def task_update(task_id):
-    """Actualiza una instancia de stage de proceso
-    de una empresa"""
-    return {'task': 'update'}
-
-
-@route(bp, '/task/create', methods=['POST'])
+#    TASKS
+#   -------
+#
+@route(bp, '/tasks', methods=['POST'])
 def task_create():
     """
     Crea una instancia de stage de proceso de una empresa
     """
-    stage = Stage.objects.get(id=stage_id)
-    task = Task()
-    task.set_description(request.form['description'])
-    task.save()
+    service = task()
+    return service.create()
 
-    stage.get_tasks().append(task)
-    stage.save()
+@route(bp, '/tasks/<task_id>')
+def task_detail(task_id):
+    """Regresa una instancia de stage de proceso
+    de una empresa
+    """
+    service = task()
+    return service.get(task_id)
 
-    return {'task': task.to_json()}
+@route(bp, '/tasks/<task_id>', methods=['UPDATE'])
+def task_update(task_id):
+    """Actualiza una instancia de stage de proceso
+    de una empresa
+    """
+    service = task()
+    return service.update(task_id)
 
-
-@route(bp, '/task/destroy/<task_id>')
-def task_destroy(task_id):
+@route(bp, '/tasks/<task_id>', method=["DELETE"])
+def task_delete(task_id):
     """Elimina una instancia de stage de proceso
-    de una empresa"""
-    # return products.get_or_404(product_id)
-    task = Task.objects(id=task_id)
-    task.delete()
+    de una empresa
+    """
+    service = task()
+    return service.delete(task_id)
 
-    return {'task': 'deleted'}
+@route(bp, '/tasks/search')
+def tasks_search():
+    """
+    Regresa una lista con todos los tasks
+    de una empresa que coinciden con los filtros
+    de busqueda
+    """
+    service = task()
+    return service.find()
