@@ -62,7 +62,11 @@ class Role(db.Document):
 
     @staticmethod
     def get_all():
-        return Role.objects()
+        try:
+            roles = Role.objects()
+            return roles
+        except db.ValidationError as e:
+            return json.dumps({'errors': str(e)})
 
     @staticmethod
     def save_object(role, permissions):

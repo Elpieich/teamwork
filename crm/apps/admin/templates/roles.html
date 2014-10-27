@@ -16,6 +16,9 @@
             <li class="active"><a href="http://localhost:5000/admin/roles">Roles</a></li>
             <li><a href="http://localhost:5000/admin/permissions">Permissions</a></li>
           </ul>
+          <ul class="nav nav-sidebar">
+            <li><a href="http://localhost:5000/admin/logs">Activity Log</a></li>
+          </ul>
         </div>
 {% endblock %}
 
@@ -269,7 +272,7 @@
 
             /* Show in red the label related with the input with errors */
             function show_errors( dict ){
-                var fields = ['name','direction'];
+                var fields = ['name','description'];
                 var field = '';
 
                 for (var i = 0; i < fields.length; i++){

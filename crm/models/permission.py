@@ -32,11 +32,15 @@ class Permission(db.Document):
             p = Permission.objects.get(id=id)
             return p.to_json()
         except db.ValidationError as e:
-            return json.dumps({'errors': e.to_dict()})
+            return json.dumps({'errors': str(e)})
 
     @staticmethod
     def get_all():
-        return Permission.objects()
+        try:
+            p = Permission.objects()
+            return p
+        except db.ValidationError as e:
+            return json.dumps({'errors': str(e)})
 
     @staticmethod
     def save_object(permission):

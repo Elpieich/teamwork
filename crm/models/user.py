@@ -1,8 +1,12 @@
 # -*- encoding:utf-8 -*-
 
-from crm.core import db
+from itsdangerous import URLSafeTimedSerializer
+from flask_mail import Message
+from crm.core import db, mail
 from .role import Role
 import json
+
+login_serializer = URLSafeTimedSerializer('FLAKSDJFdLKJ98798}{}{}KAJSDHFK22a')
 
 
 class User(db.Document):
@@ -14,7 +18,10 @@ class User(db.Document):
         required=True,
         min_length=8,
         max_length=50)
-    email = db.EmailField(required=True)
+    token = db.StringField()
+    email = db.EmailField(
+        required=True,
+        unique=True)
     role = db.ReferenceField(Role)
 
     meta = {'allow_inheritance': True}
@@ -55,6 +62,33 @@ class User(db.Document):
     def get_id(self):
         return unicode(self.id)
 
+    def get_token(self):
+        return self.token
+
+    def generate_auth_token(self):
+        """
+        Encode a secure token for cookie
+        """
+        data = [str(self.id), self.password]
+        self.token = login_serializer.dumps(data)
+
+    def send_mail(self):
+        txt = 'Hello, now you have access to CRM API \n ' \
+            'Your user is: %s \n Your password is: %s \n' \
+            'Your token (for API purposes) is: %s \n\n' \
+            '------------------------- \n\n Enjoy' % (
+            self.get_email(),
+            self.get_password(),
+            self.get_token())
+
+        msg = Message(
+            'Welcome to CRM API',
+            sender="crmsuscriptions@gmail.com",
+            recipients=
+            [self.get_email()])
+        msg.body = txt
+        mail.send(msg)
+
     @staticmethod
     def get_object(id):
         try:
@@ -65,17 +99,24 @@ class User(db.Document):
 
     @staticmethod
     def get_all(user_type):
-        return User.objects(
-            role=Role.objects.get(name=user_type)
-        )
+        try:
+            users = User.objects(
+                role=Role.objects.get(name=user_type))
+            return users
+        except db.ValidationError as e:
+            return json.dumps({'errors': str(e)})
 
     @staticmethod
-    def save_object(user):
+    def save_object(user, mail=False):
         try:
             user.save(validate=True)
+            if mail:
+                user.send_mail()
             return user.to_json()
         except db.ValidationError as e:
             return json.dumps({'errors': e.to_dict()})
+        except db.NotUniqueError:
+            return json.dumps({'errors': {'email': 'This email is already registered'}})
 
     @staticmethod
     def delete_object(id):

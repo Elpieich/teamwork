@@ -6,15 +6,18 @@
     Admin controllers
 """
 
-from flask import Blueprint, request, render_template, redirect, url_for
-from flask.ext.login import login_required, login_user, logout_user
+from flask import Blueprint, request, render_template, g, redirect
+from flask.ext.login import login_required, login_user, logout_user, current_user
+
 
 from crm.models.permission import Permission
 from crm.models.role import Role
 from crm.models.company import Company
 from crm.models.admin import Admin
 from crm.models.user import User
+from crm.models.log import Log
 from crm.core import login_manager
+from pprint import pprint
 
 import json
 
@@ -29,6 +32,7 @@ def permissions():
     """
 
     result = Permission.get_all()
+    setattr(g, 'result', result)
 
     return render_template('permissions.html', permissions=result)
 
@@ -45,6 +49,7 @@ def create_permissions():
     p.set_name(data['name'])
     p.set_description(data['description'])
     result = Permission.save_object(p)
+    setattr(g, 'result', result)
 
     return result
 
@@ -57,6 +62,7 @@ def read_permission(p_id):
     """
 
     result = Permission.get_object(p_id)
+    setattr(g, 'result', result)
 
     return result
 
@@ -73,6 +79,7 @@ def update_permission(p_id):
     p.set_name(data['name'])
     p.set_description(data['description'])
     result = Permission.save_object(p)
+    setattr(g, 'result', result)
 
     return result
 
@@ -85,6 +92,7 @@ def delete_permission(p_id):
     """
 
     result = Permission.delete_object(p_id)
+    setattr(g, 'result', result)
 
     return result
 
@@ -98,6 +106,7 @@ def roles():
 
     r = Role.get_all()
     p = Permission.get_all()
+    setattr(g, 'result', p)
 
     return render_template('roles.html', roles=r, permissions=p)
 
@@ -116,6 +125,7 @@ def create_role():
     r.set_description(data['description'])
     perms = json.loads(data['permissions'])
     result = Role.save_object(r, perms)
+    setattr(g, 'result', result)
 
     return result
 
@@ -128,6 +138,7 @@ def read_role(r_id):
     """
 
     result = Role.get_object(id=r_id)
+    setattr(g, 'result', result)
 
     return result
 
@@ -145,6 +156,7 @@ def update_role(r_id):
     r.set_description(data['description'])
     perms = json.loads(data['permissions'])
     result = Role.save_object(r, perms)
+    setattr(g, 'result', result)
 
     return result
 
@@ -157,6 +169,7 @@ def delete_role(r_id):
     """
 
     result = Role.delete_object(r_id)
+    setattr(g, 'result', result)
 
     return result
 
@@ -168,9 +181,10 @@ def companies():
     Return a list with all the system companies
     """
 
-    c = Company.get_all()
+    result = Company.get_all()
+    setattr(g, 'result', result)
 
-    return render_template('companies.html', companies=c)
+    return render_template('companies.html', companies=result)
 
 
 @bp.route('/companies', methods=['POST'])
@@ -190,11 +204,14 @@ def create_company():
     admin.set_name(data['admin_name'])
     admin.set_email(data['admin_email'])
     admin.set_role(Role.objects.get(name='Company administrator'))
-    admin.set_password('12345678')  # TODO: autogenerate password, send mail
+    admin.set_password('12345678')  # TODO: autogenerate password
+    admin.generate_auth_token()
 
     result = Company.save_object(compa, admin)
+    setattr(g, 'result', json.dumps(result))
 
     return json.dumps(result)
+
 
 @bp.route('/companies/<c_id>', methods=['GET'])
 @login_required
@@ -204,6 +221,7 @@ def read_company(c_id):
     """
 
     result = Company.get_object(id=c_id)
+    setattr(g, 'result', result)
 
     return result
 
@@ -226,6 +244,7 @@ def update_company(c_id):
     admin.set_email(data['admin_email'])
 
     result = Company.save_object(compa, admin, edit=True)
+    setattr(g, 'result', json.dumps(result))
 
     return json.dumps(result)
 
@@ -238,8 +257,10 @@ def delete_company(c_id):
     """
 
     result = Company.delete_object(c_id)
+    setattr(g, 'result', result)
 
     return result
+
 
 @bp.route('/users', methods=['GET'])
 @login_required
@@ -248,9 +269,10 @@ def users():
     Get all API Admin users
     """
 
-    u = User.get_all('Administrator API panel')
+    result = User.get_all('Administrator API panel')
+    setattr(g, 'result', result)
 
-    return render_template('users.html', users=u)
+    return render_template('users.html', users=result)
 
 
 @bp.route('/users', methods=['POST'])
@@ -260,6 +282,7 @@ def create_user():
     Create a new API admin user
 
     """
+
     data = request.get_json()
     user = User()
 
@@ -267,8 +290,10 @@ def create_user():
     user.set_email(data['email'])
     user.set_password(data['password'])
     user.set_role(Role.objects.get(name='Administrator API panel'))
+    user.generate_auth_token()
 
-    result = User.save_object(user)
+    result = User.save_object(user, mail=True)
+    setattr(g, 'result', result)
 
     return result
 
@@ -281,6 +306,7 @@ def read_user(u_id):
     """
 
     result = User.get_object(id=u_id)
+    setattr(g, 'result', result)
 
     return result
 
@@ -292,6 +318,7 @@ def update_user(u_id):
     Update an API admin user
 
     """
+
     data = request.get_json()
     u = User.objects.get(id=u_id)
 
@@ -299,7 +326,8 @@ def update_user(u_id):
     u.set_email(data['email'])
     u.set_password(data['password'])
 
-    result = User.save_object(u)
+    result = User.save_object(u, mail=False)
+    setattr(g, 'result', result)
 
     return result
 
@@ -312,42 +340,88 @@ def delete_user(u_id):
     """
 
     result = User.delete_object(u_id)
+    setattr(g, 'result', result)
 
     return result
 
 
+@bp.route('/logs', methods=['GET'])
+@login_required
+def logs():
+    """
+    Get all the logs
+    """
+
+    result = Log.get_all()
+    setattr(g, 'result', result)
+
+    return render_template('logs.html', logs=result)
+
+
 @bp.route('/', methods=['GET'])
 def index():
-    return render_template('login.html')
+    """
+    Show API Admin index
+    """
+
+    setattr(g, 'result', 'index')
+
+    if current_user.is_authenticated():
+        return redirect('/admin/companies')
+    else:
+        return render_template('login.html')
 
 
 @bp.route('/login', methods=['POST'])
 def login():
+    """
+    Verify the information to log in an user
+    """
+
+    setattr(g, 'result', 'login')
     email = request.form['email']
     password = request.form['password']
 
     user = User.objects.get(
-        email=email,  # TODO: hacer email unico
+        email=email,
         role=Role.objects.get(name='Administrator API panel'))
-    print 'passwords', password, user.get_password()
+
     if user.get_password() == password:
         login_user(user)
-        return render_template('companies.html')
+        return companies()
     else:
-        errors = {'errors':'datos incorrectos'}
+        errors = 'Please verify your email and password'
         return render_template('login.html', errors=errors)
 
+
+@bp.route('/login', methods=['GET'])
+@login_required
+def re_login():
+    """
+    Return to the index
+    """
+
+    setattr(g, 'result', 're-login')
+    return redirect('/admin')
 
 @bp.route("/logout", methods=['GET'])
 @login_required
 def logout():
+    """
+    Log out the current_user
+    """
+
+    setattr(g, 'result', 'logout')
     logout_user()
     return render_template('login.html')
 
 
 @login_manager.user_loader
 def load_user(userid):
-    print 'load_user'
+    """
+    Load user in the session when log in
+    """
+
     user = User.objects.get(id=userid)
 
     if user:
@@ -355,9 +429,32 @@ def load_user(userid):
     else:
         return None
 
+
 @login_manager.unauthorized_handler
 def unauthorized():
+    """
+    Return a message to the unauthorized user
+    """
+
     errors = "The server could not verify that you are authorized to access the URL requested." \
-          " You either supplied the wrong credentials (e.g. a bad password), " \
-          "or your browser doesn't understand how to supply the credentials required."
+             " You either supplied the wrong credentials (e.g. a bad password), " \
+             "or your browser doesn't understand how to supply the credentials required."
+
     return render_template('login.html', errors=errors)
+
+
+@bp.after_request
+def check_response(response):
+    """
+    Save in the activity log the request result
+    """
+
+    if current_user.is_active():
+        Log.save_object(
+            request.remote_addr,
+            request.url,
+            request.method,
+            User.objects.get(id=current_user.get_id()),
+            getattr(g, 'result'))
+
+    return response

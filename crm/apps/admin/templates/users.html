@@ -16,6 +16,9 @@
             <li><a href="http://localhost:5000/admin/roles">Roles</a></li>
             <li><a href="http://localhost:5000/admin/permissions">Permissions</a></li>
           </ul>
+          <ul class="nav nav-sidebar">
+            <li><a href="http://localhost:5000/admin/logs">Activity Log</a></li>
+          </ul>
         </div>
 {% endblock %}
 
@@ -70,13 +73,13 @@
 {% block editModalBody %}
             <div class="modal-body">
               <div class="form-group">
-                <label for="name">Name</label>
+                <label id="name-lbl" for="name">Name</label>
                 <p id="name-p" class="text-danger"></p>
                 <input type="text" class="form-control" id="name" placeholder="Name" name="name">
-                <label for="email">Email</label>
+                <label id="email-lbl" for="email">Email</label>
                 <p id="email-p" class="text-danger"></p>
                 <input type="text" class="form-control" id="email" placeholder="Email" name="email">
-                <label for="password">Password</label>
+                <label id="password-lbl" for="password">Password</label>
                 <p id="password-p" class="text-danger"></p>
                 <input type="password" class="form-control" id="password" placeholder="" name="password">
               </div>
