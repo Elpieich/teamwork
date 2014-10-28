@@ -23,17 +23,9 @@ class Process(db.Document):
     status = db.StringField(choices=STATUS)
     stages = db.ListField(
         db.ReferenceField('Stage'))
-    parent = db.ReferenceField('Process')
-    variables = db.ListField()
 
     def get_id(self):
         return self.id
-
-    def get_process(self):
-        return self.process
-
-    def set_process(self, process):
-        self.process = process
 
     def add_offer(self, offer):
         pass

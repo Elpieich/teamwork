@@ -14,6 +14,10 @@ class Permission(db.Document):
         min_length=1,
         max_length=140)
 
+    @db.queryset_manager
+    def objects(doc_cls, queryset):
+        return queryset.order_by('+name')
+
     def get_name(self):
         return self.name
 

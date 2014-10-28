@@ -19,6 +19,7 @@ from crm.core import login_manager
 
 import json
 
+
 bp = Blueprint('admin', __name__, template_folder='templates')
 
 
