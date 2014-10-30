@@ -85,11 +85,9 @@ class User(db.Document):
         """
         txt = 'Hello, now you have access to CRM API \n ' \
             'Your user is: %s \n Your password is: %s \n' \
-            'Your token (for API purposes) is: %s \n\n' \
             '------------------------- \n\n Enjoy' % (
             self.get_email(),
-            password,
-            self.get_token())
+            password)
 
         msg = Message(
             'Welcome to CRM API',
