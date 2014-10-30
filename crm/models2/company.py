@@ -1,7 +1,6 @@
 # -*- encoding:utf-8 -*-
 
-from flask_mail import Message
-from crm.core import db, mail
+from crm.core import db
 from .admin import Admin
 import json
 
@@ -58,12 +57,12 @@ class Company(db.Document):
             return json.dumps({'errors': str(e)})
 
     @staticmethod
-    def save_object(company, admin, edit=False):
+    def save_object(company, admin, password, edit=False):
         r_ad = {}
         r_co = {}
 
         try:
-            r_ad = Admin.save_object(admin)
+            r_ad = Admin.save_object(admin, password)
             if 'errors' not in r_ad:
                 company.set_admin(admin)
             company.save(validate=True)
@@ -99,7 +98,9 @@ class Company(db.Document):
         else:
             # Nothing fail, return all the information
             if not edit:
-                company.get_admin().send_mail()
+                company.get_admin().send_mail(password)
+                admin.company = company
+                admin.save()
             return Company.assemble_dict(r_admin, r_compa)
 
     @staticmethod

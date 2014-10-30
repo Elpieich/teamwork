@@ -4,6 +4,7 @@ from itsdangerous import URLSafeTimedSerializer
 from flask_mail import Message
 from crm.core import db, mail
 from .role import Role
+from passlib.hash import sha256_crypt
 import json
 
 login_serializer = URLSafeTimedSerializer('FLAKSDJFdLKJ98798}{}{}KAJSDHFK22a')
@@ -16,13 +17,13 @@ class User(db.Document):
         max_length=140)
     password = db.StringField(
         required=True,
-        min_length=8,
-        max_length=50)
+        min_length=8)
     token = db.StringField()
     email = db.EmailField(
         required=True,
         unique=True)
     role = db.ReferenceField(Role)
+    company = db.ReferenceField('Company')
 
     meta = {'allow_inheritance': True}
 
@@ -47,8 +48,8 @@ class User(db.Document):
     def get_password(self):
         return self.password
 
-    def set_password(self, passw):
-        self.password = passw
+    def set_password(self, password):
+        self.password = password
 
     def is_authenticated(self):
         return True
@@ -72,13 +73,22 @@ class User(db.Document):
         data = [str(self.id), self.password]
         self.token = login_serializer.dumps(data)
 
-    def send_mail(self):
+    def is_correct_password(self, password):
+        """
+        Verify if the password is correct
+        """
+        return sha256_crypt.verify(password, self.password)
+
+    def send_mail(self, password):
+        """
+        Send a email to the user created
+        """
         txt = 'Hello, now you have access to CRM API \n ' \
             'Your user is: %s \n Your password is: %s \n' \
             'Your token (for API purposes) is: %s \n\n' \
             '------------------------- \n\n Enjoy' % (
             self.get_email(),
-            self.get_password(),
+            password,
             self.get_token())
 
         msg = Message(
@@ -88,6 +98,19 @@ class User(db.Document):
             [self.get_email()])
         msg.body = txt
         mail.send(msg)
+
+    @staticmethod
+    def encrypt(string):
+        return sha256_crypt.encrypt(string)
+
+    @staticmethod
+    def generate_password():
+        user = User()
+        user.generate_auth_token()
+        string = user.get_token()
+        password = login_serializer.dumps([string[:5], string[5:10]])
+        print 'generated password: ', password[:9]
+        return password[:9]
 
     @staticmethod
     def get_object(id):
@@ -107,11 +130,11 @@ class User(db.Document):
             return json.dumps({'errors': str(e)})
 
     @staticmethod
-    def save_object(user, mail=False):
+    def save_object(user, password, mail=False):
         try:
             user.save(validate=True)
             if mail:
-                user.send_mail()
+                user.send_mail(password)
             return user.to_json()
         except db.ValidationError as e:
             return json.dumps({'errors': e.to_dict()})
@@ -125,3 +148,11 @@ class User(db.Document):
             return json.dumps({'success': 'The element was deleted'})
         except db.ValidationError as e:
             return json.dumps({'errors': e.to_dict()})
+
+    @staticmethod
+    def get_admin(email):
+        try:
+            user = User.objects.get(email=email, role=Role.objects.get(name='Administrator API panel'))
+            return user
+        except db.DoesNotExist:
+            return 'errors'
