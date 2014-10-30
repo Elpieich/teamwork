@@ -6,7 +6,7 @@ from ..core import db
 class Item(db.Document):
     name = db.StringField()
     description = db.StringField()
-    price = db.FloatField()
+    price = db.FloatField(default=0.0)
 
     def get_id(self):
         return self.id

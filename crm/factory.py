@@ -2,9 +2,11 @@
 
 from flask import Flask
 from mongoengine import connect
+from flask_security import MongoEngineUserDatastore
 
-from .core import db, toolbar, login_manager, mail
+from .core import db, toolbar, login_manager, mail, security
 from .helpers import register_blueprints
+from .models import User, Role
 from .middlewares import HTTPMethodOverrideMiddleware
 
 
@@ -44,10 +46,12 @@ class Factory:
         toolbar.init_app(app)
         login_manager.init_app(app)
         mail.init_app(app)
-        # security.init_app(
-        #     app,
-        #     SQLAlchemyUserDatastore(db, User, Role),
-        #     register_blueprint=register_security_blueprint)
+
+        user_datastore = MongoEngineUserDatastore(db, User, Role)
+        security.init_app(
+            app,
+            user_datastore,
+            register_blueprint=False)
 
         register_blueprints(app, package_name, package_path)
         app.wsgi_app = HTTPMethodOverrideMiddleware(app.wsgi_app)

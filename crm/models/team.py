@@ -4,14 +4,13 @@ from ..core import db
 
 
 class Team(db.Document):
-    name = db.StringField()
-    members = db.ListField(db.ReferenceField('User'))
-    leader = db.ReferenceField('User')
-    processes = db.ListField(db.ReferenceField('Process'))
+    name = db.StringField(max_length=140)
+    members = db.ListField(db.ReferenceField('Member'))
+    leader = db.ReferenceField('Member')
+    sales = db.ListField(db.ReferenceField('Sale'))
 
     def get_id(self):
         return self.id
-
 
     def get_name(self):
         return self.name
@@ -19,37 +18,44 @@ class Team(db.Document):
     def set_name(self, name):
         self.name = name
 
-    def get_members(self):
-        return self.members
-
-    def get_member(self, member_id):
-        for member in self.members:
-            if member.get_id() == member_id:
-                return member
-
-    def set_member(self, member):
-        self.members.append(member)
-
-    def delete_member(self, member):
-        self.member.remove(member)
-
+    def get_leader(self):
+        return self.leader
+        
     def set_leader(self, leader):
         self.leader = leader
 
-    def get_leader(self):
-        return self.leader
+    def get_members(self):
+        return self.members
 
-    def set_process(self, process):
-        self.processes.append(process)
+    def set_members(self, members):
+        self.members = members
 
-    def get_processes(self):
-        return self.processes
+    def set_member(self, index, member):
+        self.members.insert(index, member)
 
-    def get_process(self, process_id):
-        for process in self.processes:
-            if process.get_id() == process_id:
-                return process
-        return None
+    def has_member(self, member):
+        return member in self.members
 
-    def delete_process(self, process):
-        self.processes.remove(process)
+    def add_member(self, member):
+        self.members.append(member)
+
+    def remove_member(self, member):
+        self.members.remove(member)
+
+    def get_sales(self):
+        return self.sales
+
+    def set_sales(self, sales):
+        self.sales = sales
+
+    def set_sale(self, index, sale):
+        self.sales.insert(index, sale)
+
+    def has_sale(self, sale):
+        return sale in self.sales
+
+    def add_sale(self, sale):
+        self.sales.append(member)
+
+    def remove_sale(self, sale):
+        self.sale.remove(sale)

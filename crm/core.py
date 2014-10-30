@@ -8,7 +8,7 @@ from flask_login import LoginManager
 from flask_mail import Mail
 from flask_mongoengine import MongoEngine
 from flask_debugtoolbar import DebugToolbarExtension
-from flask_security import Security, MongoEngineUserDatastore
+from flask_security import Security
 
 
 mail = Mail()

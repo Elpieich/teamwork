@@ -6,6 +6,7 @@ from functools import wraps
 from itertools import chain
 from bson import json_util
 from flask import request, jsonify, current_app
+from flask_security.decorators import auth_token_required
 
 from .core import db
 
@@ -39,10 +40,8 @@ def route(bp, *args, **kwargs):
                 rv = fn(*args, **kwargs)
 
                 if hasattr(rv, 'to_json'):
-                    print 'to_json'
                     rv = rv.to_json()
                 else:
-                    print 'dumps'
                     rv = json_util.dumps(rv)
 
             except db.DoesNotExist:
@@ -95,7 +94,8 @@ class Service(object):
 
 
     @content_type(*CONTENT_TYPES)
-    @authenticity
+    #@authenticity
+    @auth_token_required
     def __init__(self):
         methods = ('POST', 'UPDATE', 'DELETE', )
         if set(methods) & set([request.method]):

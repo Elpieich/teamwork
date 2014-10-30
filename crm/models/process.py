@@ -11,50 +11,35 @@ STATUS = (
 
 
 class Process(db.Document):
-    name = db.StringField(
-        max_length=40,
-        required=True)
-    description = db.StringField(
-        max_length=140,
-        required=True)
+    name = db.StringField(max_length=40, required=True)
+    description = db.StringField(max_length=140, required=True)
     template = db.ReferenceField('ProcessTemplate')
-    team = db.ReferenceField('Team')
-    manager = db.ReferenceField('User')
     status = db.StringField(choices=STATUS)
-    stages = db.ListField(
-        db.ReferenceField('Stage'))
+    stages = db.ListField(db.ReferenceField('Stage'))
 
     def get_id(self):
         return self.id
 
-    def get_process(self):
-        return self.process
+    def get_name(self):
+        return self.name
 
-    def set_process(self, process):
-        self.process = process
+    def set_name(self, name):
+        self.name = name
 
-    def add_offer(self, offer):
-        pass
+    def get_description(self):
+        return self.description
 
-    def remove_offer(self, offer):
-        pass
+    def set_description(self, description):
+        self.description = description
 
     def get_stages(self):
         return self.stages
 
-    def set_stage(self, stage):
+    def set_stages(self, stages):
+        self.stages = stages
+
+    def add_stage(self, stage):
         self.stages.append(stage)
-    # def get_offers(self):
-    #     return self.offers
 
-    def get_latest_offer(self):
-        pass
-
-    def get_status(self):
-        return self.status
-
-    # def get_customer(self):
-    #     return self.__customer__
-
-    # def set_customer(self, customer):
-    #     self.__customer__ = customer
+    def remove_stage(self, stage):
+        self.stages.remove(stage)

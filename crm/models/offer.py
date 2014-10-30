@@ -8,42 +8,48 @@ class Offer(db.Document):
     discount = db.FloatField()
     start_date = db.DateTimeField()
     end_date = db.DateTimeField()
+    accepted = db.BooleanField(default=False)
+    comments = db.StringField(max_length=255)
 
-    # def get_id(self):
-    #     return self.__id__
 
-    # def set_id(self, id):
-    #     self.__id__ = id
+    def get_id(self):
+        return self.id
 
-    # def get_items(self):
-    #     return self.__items__
+    def get_items(self):
+        return self.items
 
-    # def set_items(self, items):
-    #     self.__items__ = items
+    def set_items(self, items):
+        self.items = items
 
-    # def add_item(self, item):
-    #     pass
+    def set_item(self, index, item):
+        self.items.insert(index, item)
 
-    # def remove_item(self, item):
-    #     pass
+    def add_item(self, item):
+        self.items.append(item)
 
-    # def get_discount(self):
-    #     return self.__discount__
+    def remove_item(self, item):
+        self.items.remove(item)
 
-    # def set_discount(self, discount):
-    #     self.__discount__ = discount
+    def has_item(self, item):
+        return item in self.items
 
-    # def get_start_date(self):
-    #     return self.__start_date__
+    def get_discount(self):
+        return self.discount
 
-    # def set_start_date(self, date):
-    #     self.__start_date__ = date
+    def set_discount(self, discount):
+        self.discount = discount
 
-    # def get_end_date(self):
-    #     return self.__end_date__
+    def get_start_date(self):
+        return self.start_date
 
-    # def set_end_date(self, date):
-    #     self.__end_date__ = date
+    def set_start_date(self, date):
+        self.start_date = date
 
-    # def calculate_price(self):
-    #     pass
+    def get_end_date(self):
+        return self.end_date
+
+    def set_end_date(self, date):
+        self.end_date = date
+
+    def get_total(self):
+        return sum([price for item.price in self.items])
