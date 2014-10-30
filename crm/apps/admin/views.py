@@ -19,6 +19,7 @@ from crm.core import login_manager
 
 import json
 
+
 bp = Blueprint('admin', __name__, template_folder='templates')
 
 
@@ -202,10 +203,11 @@ def create_company():
     admin.set_name(data['admin_name'])
     admin.set_email(data['admin_email'])
     admin.set_role(Role.objects.get(name='Company administrator'))
-    admin.set_password('12345678')  # TODO: autogenerate password
     admin.generate_auth_token()
+    password = User.generate_password()
+    admin.set_password(User.encrypt(password))
 
-    result = Company.save_object(compa, admin)
+    result = Company.save_object(compa, admin, password, edit=False)
     setattr(g, 'result', json.dumps(result))
 
     return json.dumps(result)
@@ -241,7 +243,7 @@ def update_company(c_id):
     admin.set_name(data['admin_name'])
     admin.set_email(data['admin_email'])
 
-    result = Company.save_object(compa, admin, edit=True)
+    result = Company.save_object(compa, admin, None, edit=True)
     setattr(g, 'result', json.dumps(result))
 
     return json.dumps(result)
@@ -284,13 +286,15 @@ def create_user():
     data = request.get_json()
     user = User()
 
+    password = data['password']
     user.set_name(data['name'])
     user.set_email(data['email'])
-    user.set_password(data['password'])
-    user.set_role(Role.objects.get(name='Administrator API panel'))
+    user.set_password(User.encrypt(data['password']))
     user.generate_auth_token()
+    user.set_role(Role.objects.get(name='Administrator API panel'))
+    # user.admin = Admin() # TODO: agregar una companía al superusuario
 
-    result = User.save_object(user, mail=True)
+    result = User.save_object(user, password, mail=True)
     setattr(g, 'result', result)
 
     return result
@@ -320,11 +324,12 @@ def update_user(u_id):
     data = request.get_json()
     u = User.objects.get(id=u_id)
 
+    password = data['password']
     u.set_name(data['name'])
     u.set_email(data['email'])
-    u.set_password(data['password'])
+    u.set_password(User.encrypt(data['password']))
 
-    result = User.save_object(u, mail=False)
+    result = User.save_object(u, password, mail=False)
     setattr(g, 'result', result)
 
     return result
@@ -380,11 +385,13 @@ def login():
     email = request.form['email']
     password = request.form['password']
 
-    user = User.objects.get(
-        email=email,
-        role=Role.objects.get(name='Administrator API panel'))
+    user = User.get_admin(email)
 
-    if user.get_password() == password:
+    if 'errors' in user:
+        errors = 'Please verify your email and password'
+        return render_template('login.html', errors=errors)
+
+    if user.is_correct_password(password):
         login_user(user)
         return companies()
     else:
