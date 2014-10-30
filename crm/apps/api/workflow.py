@@ -6,7 +6,7 @@
     Workflow endpoints
 """
 
-from flask import Blueprint, request
+from flask import Blueprint
 
 from crm.services import process, stage, task
 from crm.service import route
@@ -24,6 +24,7 @@ def processes():
     """
     Regresa una lista con todos los procesos de una empresa
     """
+
     service = process()
     return service.all()
 
