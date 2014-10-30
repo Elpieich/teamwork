@@ -9,15 +9,15 @@
 {% block sidebar %}
         <div class="col-sm-3 col-md-2 sidebar">
           <ul class="nav nav-sidebar">
-            <li><a href="http://localhost:5000/admin/companies">Companies</a></li>
+            <li><a href="/admin/companies">Companies</a></li>
           </ul>
           <ul class="nav nav-sidebar">
-            <li><a href="http://localhost:5000/admin/users">API Admin Users</a></li>
-            <li class="active"><a href="http://localhost:5000/admin/roles">Roles</a></li>
-            <li><a href="http://localhost:5000/admin/permissions">Permissions</a></li>
+            <li><a href="/admin/users">API Admin Users</a></li>
+            <li class="active"><a href="/admin/roles">Roles</a></li>
+            <li><a href="/admin/permissions">Permissions</a></li>
           </ul>
           <ul class="nav nav-sidebar">
-            <li><a href="http://localhost:5000/admin/logs">Activity Log</a></li>
+            <li><a href="/admin/logs">Activity Log</a></li>
           </ul>
         </div>
 {% endblock %}
@@ -102,7 +102,7 @@
 {% block another_js %}
     <script type="text/javascript">
         $( document ).ready( function() {
-            var url = 'http://localhost:5000/admin/roles';
+            var url = '/admin/roles';
             var deleteId = '';
             var editId = '-1';
             var listPermissions = {};
