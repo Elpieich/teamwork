@@ -28,6 +28,7 @@ class Admin:
 
         # Set the default JSON encoder
         self.__app__.json_encoder = JSONEncoder
+        self.__app__.security = None
 
         # Register custom error handlers
         #app.errorhandler(OverholtError)(on_overholt_error)
