@@ -1,16 +1,19 @@
 # -*- encoding:utf-8 -*-
 
+from flask_security.core import UserMixin
+
 from ..core import db
 
 
-class User(db.Document):
+class User(db.Document, UserMixin):
     name = db.StringField(required=True, min_length=4, max_length=140)
-    password = db.StringField(required=True, min_length=8, max_length=50)
+    password = db.StringField(required=True, min_length=8)
     token = db.StringField()
     email = db.EmailField(required=True, unique=True)
-    role = db.ReferenceField('Role')
+    roles = db.ListField(db.ReferenceField('Role'))
     company = db.ReferenceField('Company', required=True)
     active = db.BooleanField()
+
     meta = {'allow_inheritance': True}
 
     def get_id(self):

@@ -8,43 +8,15 @@
 
 from flask import Blueprint
 
-# from crm.services import user
-# from crm.service import route
+from crm.services import user
 
 
-# bp = Blueprint('auth', __name__, url_prefix='/auth')
+bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 
-# @route(bp, '/')
-# def list():
-#     """
-#     """
-#     return products.all()
-
-
-# @route(bp, '/', methods=['POST'])
-# def create():
-#     """
-#     """
-
-
-
-# @route(bp, '/<product_id>')
-# def show(product_id):
-#     """
-#     """
-
-
-
-# @route(bp, '/<product_id>', methods=['PUT'])
-# def update(product_id):
-#     """
-#     """
-
-
-
-# @route(bp, '/<product_id>', methods=['DELETE'])
-# def delete(product_id):
-#     """
-#     """
-
+@bp.route('/', methods=['POST'], strict_slashes=False)
+def auth():
+    """
+    """
+    service = user()
+    return service.authenticate()

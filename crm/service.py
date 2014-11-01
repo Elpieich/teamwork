@@ -32,6 +32,8 @@ def route(bp, *args, **kwargs):
     kwargs.setdefault('strict_slashes', False)
     def decorated(fn):
         @bp.route(*args, **kwargs)
+        @content_type(*CONTENT_TYPES)
+        @auth_token_required
         @wraps(fn)
         def wrapper(*args, **kwargs):
             sc = 200
@@ -92,15 +94,10 @@ class Service(object):
     __model__ = None
     __request__ = None
 
-
-    @content_type(*CONTENT_TYPES)
-    #@authenticity
-    @auth_token_required
     def __init__(self):
         methods = ('POST', 'UPDATE', 'DELETE', )
         if set(methods) & set([request.method]):
             self.__request__ = request.get_json()
-
 
     def _isinstance(self, instance, raise_error=True):
         """Checks if the specified model instance matches the service's model.
