@@ -16,4 +16,4 @@ from .permission import *
 from .role import *
 from .team import *
 from .member import *
-
+from .sale import *

@@ -13,6 +13,7 @@ from .permission import PermissionService
 from .role import RoleService
 from .offer import OfferService
 from .team import TeamService
+from .sale import SaleService
 
 
 process_template = ProcessTemplateService
@@ -28,3 +29,4 @@ offer = OfferService
 permission = PermissionService
 role = RoleService
 team = TeamService
+sale = SaleService

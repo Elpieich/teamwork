@@ -95,7 +95,7 @@ class Service(object):
     __request__ = None
 
     def __init__(self):
-        methods = ('POST', 'UPDATE', 'DELETE', )
+        methods = ('POST', 'PUT', 'DELETE', )
         if set(methods) & set([request.method]):
             self.__request__ = request.get_json()
 
