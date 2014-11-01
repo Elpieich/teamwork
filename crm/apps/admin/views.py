@@ -8,7 +8,7 @@
 
 from flask import Blueprint, request, render_template, g, redirect
 from flask.ext.login import login_required, login_user, logout_user, current_user
-from flask_security import verify_password
+from flask_security.utils import verify_password
 
 from crm.models2.permission import Permission
 from crm.models2.role import Role
