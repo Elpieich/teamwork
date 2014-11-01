@@ -2,7 +2,6 @@
 
 from itsdangerous import URLSafeTimedSerializer
 from flask_mail import Message
-from flask_security.utils import get_hmac
 from crm.core import db, mail
 from .role import Role
 from passlib.hash import sha256_crypt
@@ -100,8 +99,7 @@ class User(db.Document):
 
     @staticmethod
     def encrypt(string):
-        #return sha256_crypt.encrypt(string)
-        return get_hmac(string)
+        return sha256_crypt.encrypt(string)
 
     @staticmethod
     def generate_password():
