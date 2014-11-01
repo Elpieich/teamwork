@@ -8,6 +8,7 @@
 
 from flask import Blueprint, request, render_template, g, redirect
 from flask.ext.login import login_required, login_user, logout_user, current_user
+from flask_security import verify_password
 
 from crm.models2.permission import Permission
 from crm.models2.role import Role
@@ -391,7 +392,8 @@ def login():
         errors = 'Please verify your email and password'
         return render_template('login.html', errors=errors)
 
-    if user.is_correct_password(password):
+    #if user.is_correct_password(password):
+    if verify_password(password, user.get_password()):   
         login_user(user)
         return companies()
     else:
