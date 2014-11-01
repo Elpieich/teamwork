@@ -47,15 +47,8 @@ class Factory:
         login_manager.init_app(app)
         mail.init_app(app)
 
-        user_datastore = MongoEngineUserDatastore(db, User, Role)
-        security.init_app(
-            app,
-            user_datastore,
-            register_blueprint=False)
-
         register_blueprints(app, package_name, package_path)
         app.wsgi_app = HTTPMethodOverrideMiddleware(app.wsgi_app)
-
 
         return app
 

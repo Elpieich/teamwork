@@ -11,6 +11,9 @@ from functools import wraps
 from flask import jsonify
 from flask_security import login_required
 
+from flask_security import MongoEngineUserDatastore
+from crm.core import db, security
+from crm.models import User, Role
 from crm.factory import Factory
 from crm.helpers import JSONEncoder
 
@@ -33,6 +36,11 @@ class API:
         #app.errorhandler(OverholtFormError)(on_overholt_form_error)
         self.__app__.errorhandler(404)(on_404)
 
+        user_datastore = MongoEngineUserDatastore(db, User, Role)
+        security.init_app(
+            self.__app__,
+            user_datastore,
+            register_blueprint=False)
 
     def get_app(self):
         return self.__app__
