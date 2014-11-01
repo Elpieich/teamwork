@@ -82,7 +82,7 @@ def company_detail_field(company_id, field):
 #     service = company()
 #     return service.get(company_id, field='processes')
 
-@route(bp, '/companies/<company_id>', methods=['UPDATE'])
+@route(bp, '/companies/<company_id>', methods=['PUT'])
 def company_update(company_id):
     """
     """

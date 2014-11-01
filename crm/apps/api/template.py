@@ -42,7 +42,7 @@ def process_template_detail(template_id):
     return service.detail()
 
 
-@route(bp, '/<template_id>', methods=['UPDATE'])
+@route(bp, '/<template_id>', methods=['PUT'])
 def process_template_update(template_id):
     """Actualiza una instancia de template de proceso
     de una empresa

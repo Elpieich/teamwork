@@ -46,7 +46,7 @@ def process_detail(process_id):
     service = process()
     return service.get(process_id)
 
-@route(bp, '/processes/<process_id>', methods=['UPDATE'])
+@route(bp, '/processes/<process_id>', methods=['PUT'])
 def process_update(process_id):
     """Actualiza una instancia de proceso de una empresa
     """
@@ -101,7 +101,7 @@ def stage_detail(stage_id):
     service = stage()
     return service.get(stage_id)
 
-@route(bp, '/stages/<stage_id>', methods=['UPDATE'])
+@route(bp, '/stages/<stage_id>', methods=['PUT'])
 def stage_update(stage_id):
     """
     Actualiza una instancia de stage de proceso
@@ -158,7 +158,7 @@ def task_detail(task_id):
     service = task()
     return service.get(task_id)
 
-@route(bp, '/tasks/<task_id>', methods=['UPDATE'])
+@route(bp, '/tasks/<task_id>', methods=['PUT'])
 def task_update(task_id):
     """Actualiza una instancia de stage de proceso
     de una empresa

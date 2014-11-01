@@ -15,5 +15,5 @@ from .offer import *
 from .permission import *
 from .role import *
 from .team import *
-from .team_member import *
+from .member import *
 

@@ -40,7 +40,7 @@ def user_detail(user_id):
     service = user()
     return service.get(user_id)
 
-@route(bp, '/users/<user_id>', methods=['UPDATE'])
+@route(bp, '/users/<user_id>', methods=['PUT'])
 def user_update(user_id):
     """
     """
