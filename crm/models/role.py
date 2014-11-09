@@ -1,19 +1,18 @@
 # -*- encoding:utf-8 -*-
 
-from crm.core import db
-from .permission import Permission
+from ..core import db
 
 
 class Role(db.Document):
-    id = db.IntField(primary_key=True, required=True)
-    name = db.StringField()
-    permissions = db.ListField(db.ReferenceField(Permission))
-
-    def get_id(self):
-        return self.id
-
-    def set_id(self, id):
-        self.id = id
+    name = db.StringField(
+        required=True,
+        min_length=1,
+        max_length=140)
+    description = db.StringField(
+        required=True,
+        min_length=1,
+        max_length=140)
+    permissions = db.ListField(db.ReferenceField('Permission'))
 
     def get_name(self):
         return self.name
@@ -21,11 +20,11 @@ class Role(db.Document):
     def set_name(self, name):
         self.name = name
 
-    def add_permission(self):
-        pass
+    def get_description(self):
+        return self.description
 
-    def remove_permission(self):
-        pass
+    def set_description(self, description):
+        self.description = description
 
-    def has_permission(self):
-        pass
+    def get_permissions(self):
+        return self.permissions

@@ -1,54 +1,55 @@
 # -*- encoding:utf-8 -*-
 
-from crm.core import db
-from .item import Item
+from ..core import db
 
 
 class Offer(db.Document):
-    __id__ = db.IntField(
-        primary_key=True,
-        required=True)
-    __items__ = db.ListField(
-        db.ReferenceField(Item))
-    __discount__ = db.FloatField()
-    __start_date__ = db.DateTimeField()
-    __end_date__ = db.DateTimeField()
+    items = db.ListField(db.ReferenceField('Item'))
+    discount = db.FloatField()
+    start_date = db.DateTimeField()
+    end_date = db.DateTimeField()
+    accepted = db.BooleanField(default=False)
+    comments = db.StringField(max_length=255)
+
 
     def get_id(self):
-        return self.__id__
-
-    def set_id(self, id):
-        self.__id__ = id
+        return self.id
 
     def get_items(self):
-        return self.__items__
+        return self.items
 
     def set_items(self, items):
-        self.__items__ = items
+        self.items = items
+
+    def set_item(self, index, item):
+        self.items.insert(index, item)
 
     def add_item(self, item):
-        pass
+        self.items.append(item)
 
     def remove_item(self, item):
-        pass
+        self.items.remove(item)
+
+    def has_item(self, item):
+        return item in self.items
 
     def get_discount(self):
-        return self.__discount__
+        return self.discount
 
     def set_discount(self, discount):
-        self.__discount__ = discount
+        self.discount = discount
 
     def get_start_date(self):
-        return self.__start_date__
+        return self.start_date
 
     def set_start_date(self, date):
-        self.__start_date__ = date
+        self.start_date = date
 
     def get_end_date(self):
-        return self.__end_date__
+        return self.end_date
 
     def set_end_date(self, date):
-        self.__end_date__ = date
+        self.end_date = date
 
-    def calculate_price(self):
-        pass
+    def get_total(self):
+        return sum([price for item.price in self.items])

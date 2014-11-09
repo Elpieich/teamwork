@@ -1,54 +1,62 @@
 # -*- coding: utf-8 -*-
 """
-    crm.api.
+    crm.api.basic
     ----------------
 
-
+    Basic endpoints
 """
 
 from flask import Blueprint, request
 
-from . import route
+from crm.services import user
+from crm.service import route
+
 
 bp = Blueprint('basic', __name__)
 
+
+#
+#    USERS
+#   -------
+#
 @route(bp, '/users')
-def list_users():
-    """Returns a list of users instances."""
-    #return users.all()
-    return {'users': 'all'}
+def users():
+    """
+    """
+    service = user()
+    return service.all()
 
+@route(bp, '/users', methods=['POST'])
+def user_create():
+    """
+    """
+    service = user()
+    return service.create()
 
-@route(bp, '/user', methods=['POST'])
-def create_user():
-    """Creates a new user. Returns the new user instance."""
-    # form = NewUserForm()
-    # if form.validate_on_submit():
-    #     return products.create(**request.json)
-    # raise OverholtFormError(form.errors)
-    pass
+@route(bp, '/users/<user_id>')
+def user_detail(user_id):
+    """
+    """
+    service = user()
+    return service.get(user_id)
 
+@route(bp, '/users/<user_id>', methods=['PUT'])
+def user_update(user_id):
+    """
+    """
+    service = user()
+    return service.update(user_id)
 
-@route(bp, '/user/<user_id>')
-def detail_user(user_id):
-    """Returns a user instance."""
-    # return products.get_or_404(user_id)
-    pass
+@route(bp, '/users/<user_id>', methods=['DELETE'])
+def user_delete(user_id):
+    """
+    """
+    service = user()
+    return service.delete(user_id)
 
-
-@route(bp, '/user/<user_id>', methods=['PUT'])
-def update_user(user_id):
-    """Updates a user. Returns the user process instance."""
-    # form = UpdateProductForm()
-    # if form.validate_on_submit():
-    #     return products.update(products.get_or_404(product_id), **request.json)
-    # raise(OverholtFormError(form.errors))
-    pass
-
-
-@route(bp, '/user/<user_id>', methods=['DELETE'])
-def delete_user(user_id):
-    """Deletes a user. Returns a 204 response."""
-    # products.delete(products.get_or_404(user_id))
-    # return None, 204
-    pass
+@route(bp, '/users/search')
+def users_search():
+    """
+    """
+    service = user()
+    return service.find()

@@ -1,57 +1,63 @@
 # -*- encoding:utf-8 -*-
 
-from crm.core import db
-from .offer import Offer
-from .process import Process
-from .customer import Customer
+from ..core import db
 
 
-STATUS_OP = ('Abierta',
-             'En espera',
-             'Cancelada',
-             'Cerrada')
+STATUS = (
+    ('A', 'Abierta', ),
+    ('B', 'En espera', ),
+    ('C', 'Cancelada', ),
+    ('D', 'Cerrada'), )
 
 
 class Sale(db.Document):
-    __id__ = db.IntField(
-        primary_key=True,
-        required=True)
-    __status__ = db.StringField(
-        choices=STATUS_OP)
-    __process__ = db.ReferenceField(Process)
-    __offers__ = db.ListField(
-        db.ReferenceField(Offer))
-    __customer__ = db.ReferenceField(Customer)
-
-    def get_id(self):
-        return self.__id__
-
-    def set_id(self, id):
-        self.__id__ = id
-
-    def get_process(self):
-        return self.__process__
-
-    def set_process(self, process):
-        self.__process__ = process
-
-    def add_offer(self, offer):
-        pass
-
-    def remove_offer(self, offer):
-        pass
-
-    def get_offers(self):
-        return self.__offers__
-
-    def get_latest_offer(self):
-        pass
-
-    def get_status(self):
-        return self.__status__
+    customer = db.ReferenceField('Customer')
+    owner = db.ReferenceField('Member')
+    process = db.ReferenceField('Process')
+    status = db.StringField(choices=STATUS)
+    offers = db.ListField(db.ReferenceField('Offer'))
+    team = db.ReferenceField('Team')
 
     def get_customer(self):
-        return self.__customer__
+        return self.customer
 
     def set_customer(self, customer):
-        self.__customer__ = customer
+        self.customer = customer
+
+    def get_process(self):
+    	return self.process
+
+    def set_process(self, process):
+    	self.process = process
+
+    def get_status(self):
+        return self.status
+
+    def set_status(self, status):
+    	self.status = status
+
+    def get_offers(self):
+        return self.offers
+
+    def set_offers(self, offers):
+    	for offer in self.offers:
+    		offer.delete()
+    	self.offers = offers
+
+    def set_offer(self, index, offer):
+    	self.offers.insert(index, offer)
+
+    def add_offer(self, offer):
+    	self.offers.append(offer)
+
+    def remove_offer(self, offer):
+    	self.offers.remove(offer)
+
+    def has_offer(self, offer):
+    	return offer in self.offers
+
+    def get_last_offer(self):
+        return self.offers[-1]
+
+    def get_first_offer(self):
+    	return self.offers[0]

@@ -1,30 +1,35 @@
 # -*- encoding:utf-8 -*-
 
-from crm.core import db
-from .role import Role
-from .company import Company
+from flask_security.core import UserMixin
+
+from ..core import db
 
 
-class User(db.Document):
-    id = db.IntField(primary_key=True, required=True)
-    name = db.StringField()
-    email = db.EmailField()
-    role = db.ReferenceField(Role)
-    company = db.ReferenceField(Company)
+class User(db.Document, UserMixin):
+    name = db.StringField(required=True, min_length=4, max_length=140)
+    password = db.StringField(required=True, min_length=8)
+    token = db.StringField()
+    email = db.EmailField(required=True, unique=True)
+    roles = db.ListField(db.ReferenceField('Role'))
+    company = db.ReferenceField('Company', required=True)
+    active = db.BooleanField()
 
     meta = {'allow_inheritance': True}
 
     def get_id(self):
         return self.id
 
-    def set_id(self, id):
-        self.id = id
-
     def get_name(self):
         return self.name
 
     def set_name(self, name):
         self.name = name
+
+    def get_password(self):
+        return self.password
+
+    def set_password(self, password):
+        self.password = password
 
     def get_email(self):
         return self.email
@@ -43,3 +48,15 @@ class User(db.Document):
 
     def set_company(self, company):
         self.company = company
+
+    def get_token(self):
+        return self.token
+
+    def is_authenticated(self):
+        return True
+
+    def is_active(self):
+        return True
+
+    def is_anonymous(self):
+        return False

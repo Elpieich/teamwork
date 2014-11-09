@@ -1,36 +1,30 @@
 # -*- encoding:utf-8 -*-
 
-from crm.core import db
+from ..core import db
 
 
 class Item(db.Document):
-    __id__ = db.IntField(
-        primary_key=True,
-        required=True)
-    __name__ = db.StringField()
-    __description__ = db.StringField()
-    __base_price__ = db.FloatField()
+    name = db.StringField()
+    description = db.StringField()
+    price = db.FloatField(default=0.0)
 
     def get_id(self):
-        return self.__id__
-
-    def set_id(self, id):
-        self.__id__ = id
+        return self.id
 
     def get_name(self):
-        return self.__name__
+        return self.name
 
     def set_name(self, name):
-        self.__name__ = name
+        self.name = name
 
     def get_description(self):
-        return self.__description__
+        return self.description
 
-    def set_description(self, desc):
-        self.__description__ = desc
+    def set_description(self, description):
+        self.description = description
 
-    def get_base_price(self):
-        return self.__base_price__
+    def get_price(self):
+        return self.price
 
-    def set_base_price(self, price):
-        self.__base_price__ = price
+    def set_price(self, price):
+        self.price = price

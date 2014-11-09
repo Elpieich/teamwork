@@ -1,0 +1,5 @@
+ curl -H "Content-Type: application/json" -X POST -d '{"email":"grevych@gmail.com", "password":"gerardoReyes"}' http://localhost:5000/api/1/auth
+
+
+
+  curl -H "Content-Type: application/json"  '{"auth_token":"WyI1NDUyZTc5ZTE2Yzc3YTA0ODNmZDkyYmMiLCJlZjI4YWFmN2FjOTUzMjNhOWFkZDcxMzk0MmYyM2NiMSJd.BzSFFg.bAQ8rZdLulikyAEJd6bAkQm6rXg"}' http://localhost:5000/api/1/users

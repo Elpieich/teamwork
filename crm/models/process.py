@@ -1,56 +1,45 @@
 # -*- encoding:utf-8 -*-
 
-from crm.core import db
-from .stage import StageTemplate, Stage
-from .company import Company
+from ..core import db
 
 
-class ProcessTemplate(db.Document):
-    __name = db.StringField(max_length=40, required=True)
-    __description = db.StringField(max_length=140, required=True)
-    __company = db.ReferenceField(Company)
-    __stages = db.ListField(db.ReferenceField(StageTemplate))
+STATUS = (
+    ('A', 'Abierta', ),
+    ('B', 'En espera', ),
+    ('C', 'Cancelada', ),
+    ('D', 'Cerrada'), )
 
-    meta = {'allow_inheritance': True }
+
+class Process(db.Document):
+    name = db.StringField(max_length=40, required=True)
+    description = db.StringField(max_length=140, required=True)
+    template = db.ReferenceField('ProcessTemplate')
+    status = db.StringField(choices=STATUS)
+    stages = db.ListField(db.ReferenceField('Stage'))
+
+    def get_id(self):
+        return self.id
 
     def get_name(self):
-        return self.__name
+        return self.name
+
+    def set_name(self, name):
+        self.name = name
 
     def get_description(self):
-        return self.__description
+        return self.description
 
-    def get_company(self):
-        return self.__company
-
-    def get_stages(self):
-        return self.__stages
-
-
-class Process(db.Document, ProcessTemplate):
-    __template = db.ReferenceField(ProcessTemplate)
-    __title = db.StringField()
-    __stages = db.ListField(db.ReferenceField(Stage))
-
-    def get_title(self):
-        return self.__title
-
-    def set_title(self, title):
-        self.__title = title
+    def set_description(self, description):
+        self.description = description
 
     def get_stages(self):
-        return self.__stages
+        return self.stages
 
     def set_stages(self, stages):
-        self.__stages = stages
+        self.stages = stages
 
     def add_stage(self, stage):
-        self__stages
+        self.stages.append(stage)
 
-    def remove_stage(self, position):
-        pass
-
-    def get_latest_stage(self):
-        pass
-
-    def __str__(self):
-        return self.__title
+    def remove_stage(self, stage):
+        self.stages.remove(stage)

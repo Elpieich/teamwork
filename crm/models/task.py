@@ -1,39 +1,51 @@
 # -*- encoding:utf-8 -*-
 
-from crm.core import db
-from stage import StageTemplate
+from ..core import db
 
 
-class TaskTemplate(db.Document):
-    __description__ = db.StringField(
-        max_length=140,
-        required=True)
-    __stage__ = db.ReferenceField(StageTemplate)
+class Task(db.Document):
+    description = db.StringField(max_length=140, required=True)
+    stage = db.ReferenceField('Stage')
+    completed = db.BooleanField(default=False)
+    owner = db.ReferenceField('User')
+    manager = db.ReferenceField('User')
+    progress = db.IntField(max_value=100, min_value=0)
 
-    meta = {
-        'allow_inheritance': True
-    }
+    def get_id(self):
+        return self.id
+        
+    def get_description(self):
+        return self.description
 
-    def get_name(self):
-        return self.__name__
+    def set_description(self, description):
+        self.description = description
 
     def get_stage(self):
-        return self.__stage__
+        return self.stage
 
+    def set_stage(self, stage):
+        self.stage = stage
 
-class Task(db.Document, TaskTemplate):
-    __template__ = db.ReferenceField(TaskTemplate)
-    __description__ = db.StringField()
-    __completed__ = db.BooleanField()
+    def get_completed(self):
+        return self.completed
 
-    def get_description(self):
-        return self.__description__
+    def set_completed(self, completed):
+        self.completed = completed
 
-    def set_description(self, desc):
-        self.__description__ = desc
+    def get_owner(self):
+        return self.owner
 
-    def complete_task(self):
-        self.__completed__ = True
+    def set_owner(self, owner):
+        self.owner = owner
 
-    def uncomplete_task(self):
-        self.__completed__ = False
+    def get_manager(self):
+        return self.manager
+
+    def set_manager(self, manager):
+        self.manager = manager
+
+    def get_progress(self):
+        return self.progress
+
+    def set_progress(self, progress):
+        self.progress = progress
