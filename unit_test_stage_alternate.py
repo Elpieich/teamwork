@@ -9,30 +9,29 @@ api = API()
 
 token = 'WyI1NDUyZTEzYTE2Yzc3YTAzZmY3NTc2YTAiLCJlZjI4YWFmN2FjOTUzMjNhOWFkZDcxMzk0MmYyM2NiMSJd.BzXvZg.ySdSQnVK4NHWIe_Yx0sBDe6JIU0'
 
-class ProcessAlternateTestCase(unittest.TestCase):
+class StageTestCase(unittest.TestCase):
 
     def setUp(self):
         self.app = api.get_app().test_client()
+
         self.name_overflow = "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
         self.description_overflow = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce malesuada ornare risus vel pretium. Donec consectetur a nunc vitae dictum. Lorem ipsum dolor sit amet."
-        self.fake_process_id = "0123456789qwertyuiopasdf"
-        
-        #create dummy process
-        name = "Venta de Unittest"
-        description = "Proceso para la venta de unittest"
-        response = self.app.post('/processes',
+        self.fake_stage_id = "0123456789qwertyuiopasdf"
+
+        # create dummy process
+        name = "Stage Unittest"
+        response = self.app.post('/stages',
             data=json.dumps(dict(
                 auth_token=token,
-                name=name,
-                description=description 
+                name=name
                 )),
             content_type='application/json')
         json_data = json.loads(response.data)
-        self.process_id = str(json_data["_id"]["$oid"])
+        self.stage_id = str(json_data["_id"]["$oid"])
         self.assertEqual(response.status_code, 200)
 
     def tearDown(self):
-        response = self.app.delete('/processes/%s' % self.process_id,
+        response = self.app.delete('/stages/%s' % self.stage_id,
             data=json.dumps(dict(
                 auth_token=token
                 )),
@@ -40,61 +39,49 @@ class ProcessAlternateTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
 
 #
-#    PROCESSES
+#    STAGES
 #   -----------
 #
     def test_create_name_overflow(self):
-        description = "Proceso para la venta de unittest"
-        response = self.app.post('/processes',
+        response = self.app.post('/stages',
             data=json.dumps(dict(
                 auth_token=token,
-                name=self.name_overflow,
-                description=description 
+                name=self.name_overflow 
                 )),
             content_type='application/json')
         self.assertEqual(response.status_code, 418)
 
-    def test_create_decription_overflow(self):
-        name = "Venta de Unittest"
-        response = self.app.post('/processes',
+    def test_create_description_overflow(self):
+        name = "Stage Unittest"
+        response = self.app.post('/stages',
             data=json.dumps(dict(
                 auth_token=token,
                 name=name,
-                description=self.description_overflow
+                description=self.description_overflow 
                 )),
             content_type='application/json')
         self.assertEqual(response.status_code, 418)
 
     def test_create_no_fields(self):
-        response = self.app.post('/processes',
+        response = self.app.post('/stages',
             data=json.dumps(dict(
-                auth_token=token,
-                )),
-            content_type='application/json')
-        self.assertEqual(response.status_code, 418)
-
-    def test_create_no_description(self):
-        name = "Venta de Unittest"
-        response = self.app.post('/processes',
-            data=json.dumps(dict(
-                auth_token=token,
-                name=name,
+                auth_token=token
                 )),
             content_type='application/json')
         self.assertEqual(response.status_code, 418)
 
     def test_create_no_name(self):
-        description = "Proceso para la venta de unittest"
-        response = self.app.post('/processes',
+        description = "Stage description"
+        response = self.app.post('/stages',
             data=json.dumps(dict(
                 auth_token=token,
-                description=description 
+                description=description
                 )),
             content_type='application/json')
         self.assertEqual(response.status_code, 418)
 
     def test_id_null(self):
-        response = self.app.get('/processes/%s?auth_token=%s' % (self.fake_process_id, token), content_type='application/json')
+        response = self.app.get('/stages/%s?auth_token=%s' % (self.fake_stage_id, token), content_type='application/json')
         self.assertEqual(response.status_code, 418)
 
     def test_update(self):
@@ -103,49 +90,50 @@ class ProcessAlternateTestCase(unittest.TestCase):
         self.update_no_name()
 
     def update_no_fields(self):
-        response = self.app.put('/processes/%s' % self.process_id,
+        response = self.app.put('/stages/%s' % self.stage_id,
             data=json.dumps(dict(
-                auth_token=token,
+                auth_token=token
                 )),
             content_type='application/json')
-        expected_json = "{u'stages': [], u'_id': {u'$oid': u'%s'}, u'name': u'Venta de Unittest', u'description': u'Proceso para la venta de unittest'}" % self.process_id
+        expected_json = "{u'tasks': [], u'_id': {u'$oid': u'%s'}, u'name': u'Stage Unittest'}" % self.stage_id
         json_data = json.loads(response.data)
         self.assertEqual(str(json_data), expected_json)
         self.assertEqual(response.status_code, 200)
 
     def update_no_description(self):
-        name = "Venta de hamburguesas con queso"
-        response = self.app.put('/processes/%s' % self.process_id,
+        name = "Stage Update"
+        response = self.app.put('/stages/%s' % self.stage_id,
             data=json.dumps(dict(
                 auth_token=token,
                 name=name
                 )),
             content_type='application/json')
-        expected_json = "{u'stages': [], u'_id': {u'$oid': u'%s'}, u'name': u'Venta de hamburguesas con queso', u'description': u'Proceso para la venta de unittest'}" % self.process_id
+        expected_json = "{u'tasks': [], u'_id': {u'$oid': u'%s'}, u'name': u'Stage Update'}" % self.stage_id
         json_data = json.loads(response.data)
         self.assertEqual(str(json_data), expected_json)
         self.assertEqual(response.status_code, 200)
 
     def update_no_name(self):
-        description = "Proceso para la venta de hamburguesas"
-        response = self.app.put('/processes/%s' % self.process_id,
+        description = "Stage description"
+        response = self.app.put('/stages/%s' % self.stage_id,
             data=json.dumps(dict(
                 auth_token=token,
                 description=description
                 )),
             content_type='application/json')
-        expected_json = "{u'stages': [], u'_id': {u'$oid': u'%s'}, u'name': u'Venta de hamburguesas con queso', u'description': u'Proceso para la venta de hamburguesas'}" % self.process_id
+        expected_json = "{u'tasks': [], u'_id': {u'$oid': u'%s'}, u'name': u'Stage Update', u'description': u'Stage description'}" % self.stage_id
         json_data = json.loads(response.data)
         self.assertEqual(str(json_data), expected_json)
-        self.assertEqual(response.status_code, 200)
-        
-    def test_process_delete(self):
-        response = self.app.delete('/processes/%s' % self.fake_process_id,
+        self.assertEqual(response.status_code, 200)  
+
+    def test_stage_delete(self):
+        response = self.app.delete('/stages/%s' % self.fake_stage_id,
             data=json.dumps(dict(
                 auth_token=token
                 )),
             content_type='application/json')
-        self.assertEqual(response.status_code, 418)
+        self.assertEqual(response.status_code, 418)  
+
 
 if __name__ == '__main__':
     unittest.main()
