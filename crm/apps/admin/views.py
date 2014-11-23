@@ -6,8 +6,13 @@
     Admin controllers
 """
 
+from functools import wraps
+
 from flask import Blueprint, request, render_template, g, redirect
-from flask.ext.login import login_required, login_user, logout_user, current_user
+from flask_security.utils import login_user, logout_user
+from flask_security.core import current_user
+
+from crm.core import user_datastore, db
 
 from crm.models2.permission import Permission
 from crm.models2.role import Role
@@ -15,12 +20,35 @@ from crm.models2.company import Company
 from crm.models2.admin import Admin
 from crm.models2.user import User
 from crm.models2.log import Log
-from crm.core import login_manager
 
 import json
 
-
+user_data = user_datastore(db, User, Role)
 bp = Blueprint('admin', __name__, template_folder='templates')
+
+
+def login_required(func):
+    """
+    Decorador para solicitar login del usuario
+    """
+    @wraps(func)
+    def decorated_view(*args, **kwargs):
+        if not current_user.is_authenticated():
+            return unauthorized()
+        return func(*args, **kwargs)
+    return decorated_view
+
+
+def unauthorized():
+    """
+    Return a message to the unauthorized user
+    """
+
+    errors = "The server could not verify that you are authorized to access the URL requested." \
+             " You either supplied the wrong credentials (e.g. a bad password), " \
+             "or your browser doesn't understand how to supply the credentials required."
+
+    return render_template('login.html', errors=errors)
 
 
 @bp.route('/permissions', methods=['GET'])
@@ -194,20 +222,20 @@ def create_company():
     """
 
     data = request.get_json()
-    compa = Company()
+    company = Company()
     admin = Admin()
 
-    compa.set_name(data['name'])
-    compa.set_direction(data['direction'])
+    company.set_name(data['name'])
+    company.set_direction(data['direction'])
 
     admin.set_name(data['admin_name'])
     admin.set_email(data['admin_email'])
-    admin.set_role(Role.objects.get(name='Company administrator'))
+    admin.add_role(Role.objects.get(name='Company administrator'))
     admin.generate_auth_token()
     password = User.generate_password()
     admin.set_password(User.encrypt(password))
 
-    result = Company.save_object(compa, admin, password, edit=False)
+    result = Company.save_object(company, admin, password, edit=False)
     setattr(g, 'result', json.dumps(result))
 
     return json.dumps(result)
@@ -280,7 +308,6 @@ def users():
 def create_user():
     """
     Create a new API admin user
-
     """
 
     data = request.get_json()
@@ -291,7 +318,7 @@ def create_user():
     user.set_email(data['email'])
     user.set_password(User.encrypt(data['password']))
     user.generate_auth_token()
-    user.set_role(Role.objects.get(name='Administrator API panel'))
+    user.add_role(Role.objects.get(name='Administrator API panel'))
     # user.admin = Admin() # TODO: agregar una companía al superusuario
 
     result = User.save_object(user, password, mail=True)
@@ -368,7 +395,13 @@ def index():
     """
 
     setattr(g, 'result', 'index')
-
+    """
+    user = user_data.create_user(
+        name='marin',
+        email='marin.alcaraz@gmail.com',
+        password=encrypt_password('12341234'))
+    user_data.add_role_to_user(user, Role.objects.get(name='Administrator API panel'))
+    """
     if current_user.is_authenticated():
         return redirect('/admin/companies')
     else:
@@ -392,7 +425,7 @@ def login():
         return render_template('login.html', errors=errors)
 
     if user.is_correct_password(password):
-        login_user(user)
+        login_user(user, remember=False)
         return companies()
     else:
         errors = 'Please verify your email and password'
@@ -419,33 +452,6 @@ def logout():
     setattr(g, 'result', 'logout')
     logout_user()
     return render_template('login.html')
-
-
-@login_manager.user_loader
-def load_user(userid):
-    """
-    Load user in the session when log in
-    """
-
-    user = User.objects.get(id=userid)
-
-    if user:
-        return user
-    else:
-        return None
-
-
-@login_manager.unauthorized_handler
-def unauthorized():
-    """
-    Return a message to the unauthorized user
-    """
-
-    errors = "The server could not verify that you are authorized to access the URL requested." \
-             " You either supplied the wrong credentials (e.g. a bad password), " \
-             "or your browser doesn't understand how to supply the credentials required."
-
-    return render_template('login.html', errors=errors)
 
 
 @bp.after_request

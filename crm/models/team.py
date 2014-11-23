@@ -55,7 +55,7 @@ class Team(db.Document):
         return sale in self.sales
 
     def add_sale(self, sale):
-        self.sales.append(member)
+        self.sales.append(sale)
 
     def remove_sale(self, sale):
         self.sale.remove(sale)
