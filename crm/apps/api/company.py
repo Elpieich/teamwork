@@ -8,7 +8,7 @@
 
 from flask import Blueprint, request
 
-from crm.services import company, item, offer, team, user
+from crm.services import company, item, offer, team, user, sale, customer
 from crm.service import route
 
 
