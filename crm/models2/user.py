@@ -1,30 +1,25 @@
 # -*- encoding:utf-8 -*-
 
+from flask_security.utils import encrypt_password, verify_password
+from flask_security.core import UserMixin
 from itsdangerous import URLSafeTimedSerializer
 from flask_mail import Message
 from crm.core import db, mail
 from .role import Role
-from passlib.hash import sha256_crypt
+
 import json
 
 login_serializer = URLSafeTimedSerializer('FLAKSDJFdLKJ98798}{}{}KAJSDHFK22a')
 
 
-class User(db.Document):
-    name = db.StringField(
-        required=True,
-        min_length=1,
-        max_length=140)
-    password = db.StringField(
-        required=True,
-        min_length=8)
+class User(db.Document, UserMixin):
+    name = db.StringField(required=True, min_length=1, max_length=140)
+    password = db.StringField(required=True, min_length=8)
     token = db.StringField()
-    email = db.EmailField(
-        required=True,
-        unique=True)
-    role = db.ReferenceField(Role)
+    email = db.EmailField(required=True, unique=True)
+    roles = db.ListField(db.ReferenceField('Role'), default=[])
     company = db.ReferenceField('Company')
-
+    active = db.BooleanField(default=True)
     meta = {'allow_inheritance': True}
 
     def get_name(self):
@@ -39,29 +34,20 @@ class User(db.Document):
     def set_email(self, email):
         self.email = email
 
-    def get_role(self):
-        return self.role
-
-    def set_role(self, role):
-        self.role = role
-
     def get_password(self):
         return self.password
 
     def set_password(self, password):
         self.password = password
 
-    def is_authenticated(self):
-        return True
+    def get_company(self):
+        self.company
 
-    def is_active(self):
-        return True
+    def set_company(self, company):
+        self.company = company
 
-    def is_anonymous(self):
-        return False
-
-    def get_id(self):
-        return unicode(self.id)
+    def add_role(self, role):
+        self.roles.append(role)
 
     def get_token(self):
         return self.token
@@ -77,7 +63,7 @@ class User(db.Document):
         """
         Verify if the password is correct
         """
-        return sha256_crypt.verify(password, self.password)
+        return verify_password(password, self.password)
 
     def send_mail(self, password):
         """
@@ -99,7 +85,8 @@ class User(db.Document):
 
     @staticmethod
     def encrypt(string):
-        return sha256_crypt.encrypt(string)
+        return encrypt_password(string)
+
 
     @staticmethod
     def generate_password():
@@ -107,7 +94,7 @@ class User(db.Document):
         user.generate_auth_token()
         string = user.get_token()
         password = login_serializer.dumps([string[:5], string[5:10]])
-        print 'generated password: ', password[:9]
+        # print 'generated password: ', password[:9]
         return password[:9]
 
     @staticmethod
@@ -122,7 +109,7 @@ class User(db.Document):
     def get_all(user_type):
         try:
             users = User.objects(
-                role=Role.objects.get(name=user_type))
+                roles=Role.objects.get(name=user_type))
             return users
         except db.ValidationError as e:
             return json.dumps({'errors': str(e)})
@@ -150,7 +137,10 @@ class User(db.Document):
     @staticmethod
     def get_admin(email):
         try:
-            user = User.objects.get(email=email, role=Role.objects.get(name='Administrator API panel'))
-            return user
+            user = User.objects.get(email=email)
+            if user.has_role('Administrator API panel'):
+                return user
+            else:
+                return 'errors: user is not administrator'
         except db.DoesNotExist:
             return 'errors'

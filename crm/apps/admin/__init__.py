@@ -8,13 +8,16 @@
 
 from functools import wraps
 
-from flask import jsonify, Flask
-from flask_security import login_required
+from flask import jsonify, Flask, Blueprint
 
+from crm.core import db, security, user_datastore
+from crm.models import User, Role
 from crm.factory import Factory
 from crm.helpers import JSONEncoder
 
 app = Flask(__name__)
+bp = Blueprint('admin', __name__, template_folder='templates')
+user_data = user_datastore(db, User, Role)
 
 class Admin:
 
@@ -35,6 +38,10 @@ class Admin:
         #app.errorhandler(OverholtFormError)(on_overholt_form_error)
         self.__app__.errorhandler(404)(on_404)
 
+        security.init_app(
+            self.__app__,
+            user_data,
+            register_blueprint=False)
 
     def get_app(self):
         return self.__app__

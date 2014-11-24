@@ -10,14 +10,11 @@ class User(db.Document, UserMixin):
     password = db.StringField(required=True, min_length=8)
     token = db.StringField()
     email = db.EmailField(required=True, unique=True)
-    roles = db.ListField(db.ReferenceField('Role'))
+    roles = db.ListField(db.ReferenceField('Role'), default=[])
     company = db.ReferenceField('Company', required=True)
     active = db.BooleanField()
 
     meta = {'allow_inheritance': True}
-
-    def get_id(self):
-        return self.id
 
     def get_name(self):
         return self.name
@@ -37,12 +34,6 @@ class User(db.Document, UserMixin):
     def set_email(self, email):
         self.email = email
 
-    def get_role(self):
-        return self.role
-
-    def set_role(self, role):
-        self.role = role
-
     def get_company(self):
         return self.company
 
@@ -51,12 +42,3 @@ class User(db.Document, UserMixin):
 
     def get_token(self):
         return self.token
-
-    def is_authenticated(self):
-        return True
-
-    def is_active(self):
-        return True
-
-    def is_anonymous(self):
-        return False

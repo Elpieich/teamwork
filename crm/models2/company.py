@@ -14,7 +14,9 @@ class Company(db.Document):
         required=True,
         min_length=1,
         max_length=140)
-    admin = db.ReferenceField(Admin)
+    admin = db.ReferenceField('Admin')
+    items = db.ListField(db.ReferenceField('Item'))
+    customers = db.ListField(db.ReferenceField('Customer'))
 
     def get_name(self):
         return self.name
