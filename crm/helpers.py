@@ -1,5 +1,6 @@
 # -*- encoding:utf-8 -*-
 
+import os.path
 import pkgutil
 import importlib
 
@@ -17,6 +18,13 @@ def register_blueprints(app, package_name, package_path):
     """
     rv = []
     for _, name, _ in pkgutil.iter_modules(package_path):
+        package = os.path.join(package_path[0], name)
+        if os.path.isdir(package):
+            rv += register_blueprints(
+                app, 
+                '%s.%s' % (package_name, name), 
+                ['%s/%s' % (package_path[0], name)])
+            continue
         m = importlib.import_module('%s.%s' % (package_name, name))
         for item in dir(m):
             item = getattr(m, item)

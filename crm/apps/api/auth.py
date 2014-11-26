@@ -18,5 +18,5 @@ bp = Blueprint('auth', __name__, url_prefix='/auth')
 def auth():
     """
     """
-    service = user()
+    service = user(authenticate=True)
     return service.authenticate()

@@ -33,7 +33,7 @@ class UserService(Service):
     def create(self, **kwargs):
         """
         """
-        parameters = dict(chain(self.__request__.items(), kwargs.items()))
+        parameters = dict(chain(self.__parameters__.items(), kwargs.items()))
         user = self.new(**parameters)
         if not user.get_password():
             return None
@@ -43,10 +43,10 @@ class UserService(Service):
 
     def authenticate(self):
         if not current_user.is_authenticated():
-            if 'password' in self.__request__ and 'email' in self.__request__:
-                user = self.__model__.objects.get(email=self.__request__['email'])
+            if 'password' in self.__parameters__ and 'email' in self.__parameters__:
+                user = self.__model__.objects.get(email=self.__parameters__['email'])
                 if user:
-                    if verify_password(self.__request__['password'], user.get_password()):
+                    if verify_password(self.__parameters__['password'], user.get_password()):
                         return user.get_auth_token()
             return current_app.login_manager.unauthorized()
         return user.get_auth_token()

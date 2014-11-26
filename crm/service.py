@@ -1,90 +1,11 @@
 # -*- encoding:utf-8 -*-
 
-import werkzeug.exceptions
-
 from functools import wraps
 from itertools import chain
-from bson import json_util
-from flask import request, jsonify, current_app
-from flask_security.decorators import auth_token_required
-
-from .core import db
-
 from pprint import pprint 
-#pprint(werkzeug.exceptions.__doc__)
 
-#autentificacion
-#autorizacion
-#permisos
-
-#chequeo de headers
-#chequeo de parametros (contenido y cuales)
-#manejo de errores
-#clean
-
-
-CONTENT_TYPES = (
-    'application/json',)
-
-
-
-def route(bp, *args, **kwargs):
-    kwargs.setdefault('strict_slashes', False)
-    def decorated(fn):
-        @bp.route(*args, **kwargs)
-        @content_type(*CONTENT_TYPES)
-        @auth_token_required
-        @wraps(fn)
-        def wrapper(*args, **kwargs):
-            sc = 200
-
-            try:
-                rv = fn(*args, **kwargs)
-
-                if hasattr(rv, 'to_json'):
-                    rv = rv.to_json()
-                else:
-                    rv = json_util.dumps(rv)
-
-            except db.DoesNotExist:
-                raise werkzeug.exceptions.ImATeapot
-            except db.ValidationError:
-                raise werkzeug.exceptions.ImATeapot
-
-            if isinstance(rv, tuple):
-                sc = rv[1]
-                rv = rv[0]
-            return rv, sc
-        return wrapper
-    return decorated
-
-
-def content_type(*content_types):
-    def decorated(fn):
-        @wraps(fn)
-        def wrapper(*args, **kwargs):
-            if request.mimetype not in content_types:
-                raise werkzeug.exceptions.UnsupportedMediaType
-            return fn(*args, **kwargs)
-        return wrapper
-    return decorated
-
-
-def authenticity(fn):
-    def decorated(*args, **kwargs):
-        return fn(*args, **kwargs)
-    return decorated
-
-
-def output(fn):
-    def decorated(*args, **kwargs):
-        sc = 200
-        rv = fn(*args, **kwargs).to_json()
-        if isinstance(rv, tuple):
-            sc = rv[1]
-            rv = rv[0]
-        return jsonify(dict(data=rv)), sc
-    return decorated
+import werkzeug.exceptions
+from flask import request, current_app
 
 
 class Service(object):
@@ -92,12 +13,30 @@ class Service(object):
     operations in the context of a :class:`Flask` application.
     """
     __model__ = None
-    __request__ = None
+    __parameters__ = None
+    __exceptions__ = None
 
-    def __init__(self):
-        methods = ('POST', 'PUT', 'DELETE', )
-        if set(methods) & set([request.method]):
-            self.__request__ = request.get_json()
+    def __init__(self, authenticate=False):
+        if request.mimetype not in current_app.content_types:
+            self.__exception__ = werkzeug.exceptions.UnsupportedMediaType
+            return
+        if not authenticate and not current_app.authenticated():
+            current_app.unauthorized()
+            self.__exception__ = werkzeug.exceptions.Unauthorized
+            return
+        self.__parameters__ = current_app.get_parameters(request)
+
+    @staticmethod
+    def route(bp, *args, **kwargs):
+        kwargs.setdefault('strict_slashes', False)
+        def decorator(fn):
+            @bp.route(*args, **kwargs)
+            @wraps(fn)
+            def wrapper(*args, **kwargs):
+                response = fn(*args, **kwargs)
+                return current_app.output_format(response)
+            return fn
+        return decorator
 
     def _isinstance(self, instance, raise_error=True):
         """Checks if the specified model instance matches the service's model.
@@ -187,7 +126,7 @@ class Service(object):
         :param **kwargs: instance parameters
         """
 
-        parameters = dict(chain(self.__request__.items(), kwargs.items()))
+        parameters = dict(chain(self.__parameters__.items(), kwargs.items()))
         instance = self.new(**parameters)
         return self.save(instance)
 
@@ -197,7 +136,7 @@ class Service(object):
         :param model: the model to update
         :param **kwargs: update parameters
         """
-        parameters = dict(chain(self.__request__.items(), kwargs.items()))
+        parameters = dict(chain(self.__parameters__.items(), kwargs.items()))
         instance = self.get(id=id)
         self._isinstance(instance)
         for field, value in self._preprocess_params(**parameters).items():

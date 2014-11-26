@@ -7,107 +7,83 @@
 """
 
 from functools import wraps
-
-from flask import jsonify
-from flask_security import login_required
+from bson import json_util
 
 from flask_security import MongoEngineUserDatastore
+from flask_security.decorators import _check_token
+
 from crm.core import db, security
 from crm.models import User, Role
 from crm.factory import Factory
 from crm.helpers import JSONEncoder
+from crm.middlewares import HTTPMethodOverrideMiddleware
 
 
 class API:
+    conetnt_types = ('application/json', )
+    methods = ('GET', 'POST', 'PUT', 'DELETE', 'UPDATE', )
 
     def __init__(self, settings_override=None):
         """Returns the CRM API application instance"""
-
-        self.__app__ = Factory.create_app(
+        self.app = Factory.create_app(
             __name__,
             __path__,
             settings_override)
-
-        # Set the default JSON encoder
-        self.__app__.json_encoder = JSONEncoder
-
-        # Register custom error handlers
-        #app.errorhandler(OverholtError)(on_overholt_error)
-        #app.errorhandler(OverholtFormError)(on_overholt_form_error)
-        self.__app__.errorhandler(404)(on_404)
-
-        user_datastore = MongoEngineUserDatastore(db, User, Role)
+        db.init_app(self.app)
         security.init_app(
-            self.__app__,
-            user_datastore,
+            self.app,
+            MongoEngineUserDatastore(db, User, Role),
             register_blueprint=False)
+        self.app.json_encoder = JSONEncoder
+        self.app.wsgi_app = HTTPMethodOverrideMiddleware(self.app.wsgi_app)
 
-    def get_app(self):
-        return self.__app__
-
+    @classmethod
+    def get_parameters(cls, request):
+        if set(cls.methods) & set([request.method]):
+            return request.get_json()
+        return None
 
     @staticmethod
-    def route(bp, *args, **kwargs):
-        kwargs.setdefault('strict_slashes', False)
+    def authenticated():
+        return _check_token()
 
-        def decorator(f):
-            @bp.route(*args, **kwargs)
-            #@login_required
-            @wraps(f)
-            def wrapper(*args, **kwargs):
-                sc = 200
-                rv = f(*args, **kwargs)
-                if isinstance(rv, tuple):
-                    sc = rv[1]
-                    rv = rv[0]
-                return jsonify(dict(data=rv)), sc
-            return f
+    @staticmethod
+    def unauthorized():
+        pass
+        # werkzeug.exceptions.Unauthorized
 
-        return decorator
+    @staticmethod
+    def output_format(response):
+        sc = 200
+        if hasattr(response, 'to_json'):
+                response = response.to_json()
+        else:
+                response = json_util.dumps(response)
 
-
-
-def route(bp, *args, **kwargs):
-    kwargs.setdefault('strict_slashes', False)
-
-    def decorator(f):
-        @bp.route(*args, **kwargs)
-        #@login_required
-        @wraps(f)
-        def wrapper(*args, **kwargs):
-            sc = 200
-            rv = f(*args, **kwargs)
-            if isinstance(rv, tuple):
-                sc = rv[1]
-                rv = rv[0]
-            return jsonify(dict(data=rv)), sc
-        return f
-
-    return decorator
+        if isinstance(response, tuple):
+            sc = response[1]
+            response = response[0]
+        return response, sc
 
 
+        #     rv = fn(*args, **kwargs)
 
-def on_overholt_error(e):
-    return jsonify(dict(error=e.msg)), 400
+        #     if hasattr(rv, 'to_json'):
+        #         rv = rv.to_json()
+        #     else:
+        #         rv = json_util.dumps(rv)
+
+        # # except db.DoesNotExist:
+        # #     raise werkzeug.exceptions.ImATeapot
+        # # except db.ValidationError:
+        # #     raise werkzeug.exceptions.ImATeapot
+
+        # if isinstance(rv, tuple):
+        #     sc = rv[1]
+        #     rv = rv[0]
+        # return rv, sc
 
 
-def on_overholt_form_error(e):
-    return jsonify(dict(errors=e.errors)), 400
-
-
-def on_404(e):
-    return jsonify(dict(error='Not found')), 404
-
-
-
-
-# encoding: utf-8
-"""
-errors.py
-
-Created by grevych on 2014-07-25.
-Copyright (c) 2014 __MyCompanyName__. All rights reserved.
-"""
 
 # from flask import jsonify
 
