@@ -12,6 +12,7 @@ from flask import jsonify, current_app
 from flask_security.core import current_user
 from flask_security.utils import get_hmac, verify_password
 
+
 from ..service import Service
 from ..models import User
 

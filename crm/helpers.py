@@ -4,8 +4,18 @@ import os.path
 import pkgutil
 import importlib
 
-from flask import Blueprint
+from flask import Blueprint, current_app
 from flask.json import JSONEncoder as BaseJSONEncoder
+from werkzeug.local import LocalProxy
+
+
+_security = LocalProxy(lambda: current_app.extensions['security'])
+
+
+def get_user_by_token(token):
+    #TODO: Falta validación por si no existe ningún usuario con ese token
+    user = _security.login_manager.token_callback(token)
+    return user
 
 
 def register_blueprints(app, package_name, package_path):

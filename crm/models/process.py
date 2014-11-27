@@ -1,6 +1,7 @@
 # -*- encoding:utf-8 -*-
 
 from ..core import db
+from crm.helpers import get_user_by_token
 
 
 STATUS = (
@@ -16,6 +17,13 @@ class Process(db.Document):
     template = db.ReferenceField('ProcessTemplate')
     status = db.StringField(choices=STATUS)
     stages = db.ListField(db.ReferenceField('Stage'))
+    company = db.ReferenceField('Company')
+
+    def save(self, *args, **kwargs):
+        token = kwargs['auth_token']
+        user = get_user_by_token(token)
+        self.company = user.company
+        return super(Process, self).save(*args, **kwargs)
 
     def get_id(self):
         return self.id

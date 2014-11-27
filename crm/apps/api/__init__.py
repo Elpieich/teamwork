@@ -14,7 +14,6 @@ from flask import request
 from flask_security import MongoEngineUserDatastore
 from flask_security.decorators import _check_token
 
-
 from crm.core import db, security
 from crm.models import User, Role
 from crm.factory import Factory

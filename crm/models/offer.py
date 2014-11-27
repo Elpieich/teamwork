@@ -1,7 +1,7 @@
 # -*- encoding:utf-8 -*-
 
 from ..core import db
-
+from crm.helpers import get_user_by_token
 
 class Offer(db.Document):
     items = db.ListField(db.ReferenceField('Item'))
@@ -10,7 +10,13 @@ class Offer(db.Document):
     end_date = db.DateTimeField()
     accepted = db.BooleanField(default=False)
     comments = db.StringField(max_length=255)
+    company = db.ReferenceField('Company')
 
+    def save(self, *args, **kwargs):
+        token = kwargs['auth_token']
+        user = get_user_by_token(token)
+        self.company = user.company
+        return super(Offer, self).save(*args, **kwargs)
 
     def get_id(self):
         return self.id

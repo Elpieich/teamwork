@@ -1,6 +1,7 @@
 # -*- encoding:utf-8 -*-
 
 from ..core import db
+from crm.helpers import get_user_by_token
 
 
 class Task(db.Document):
@@ -10,6 +11,12 @@ class Task(db.Document):
     owner = db.ReferenceField('User')
     manager = db.ReferenceField('User')
     progress = db.IntField(max_value=100, min_value=0)
+
+    def save(self, *args, **kwargs):
+        token = kwargs['auth_token']
+        user = get_user_by_token(token)
+        self.company = user.company
+        return super(Task, self).save(*args, **kwargs)
 
     def get_id(self):
         return self.id

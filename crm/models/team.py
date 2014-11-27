@@ -1,6 +1,7 @@
 # -*- encoding:utf-8 -*-
 
 from ..core import db
+from crm.helpers import get_user_by_token
 
 
 class Team(db.Document):
@@ -8,6 +9,13 @@ class Team(db.Document):
     members = db.ListField(db.ReferenceField('Member'))
     leader = db.ReferenceField('Member')
     sales = db.ListField(db.ReferenceField('Sale'))
+    company = db.ReferenceField('Company')
+
+    def save(self, *args, **kwargs):
+        token = kwargs['auth_token']
+        user = get_user_by_token(token)
+        self.company = user.company
+        return super(Team, self).save(*args, **kwargs)
 
     def get_id(self):
         return self.id

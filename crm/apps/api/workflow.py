@@ -7,6 +7,7 @@
 """
 
 from flask import Blueprint
+from flask_security import current_user
 
 from crm.services import process, stage, task
 from crm.service import route
@@ -24,7 +25,7 @@ def processes():
     """
     Regresa una lista con todos los procesos de una empresa
     """
-    from flask_security import current_user
+
     print current_user
     service = process()
     return service.all()

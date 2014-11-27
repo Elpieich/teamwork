@@ -3,6 +3,7 @@
 from flask_security.core import UserMixin
 
 from ..core import db
+from crm.helpers import get_user_by_token
 
 
 class User(db.Document, UserMixin):
@@ -14,6 +15,12 @@ class User(db.Document, UserMixin):
     company = db.ReferenceField('Company')
     active = db.BooleanField(default=True)
     meta = {'allow_inheritance': True}
+
+    def save(self, *args, **kwargs):
+        token = kwargs['auth_token']
+        user = get_user_by_token(token)
+        self.company = user.company
+        return super(User, self).save(*args, **kwargs)
 
     def get_name(self):
         return self.name

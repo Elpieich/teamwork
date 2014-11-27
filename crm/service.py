@@ -62,17 +62,20 @@ class Service(object):
         :param model: the model to save
         """
         self._isinstance(instance)
-        instance.save()
+        token = self.__parameters__['auth_token']
+        instance.save(auth_token=token)
         return instance
 
     def all(self):
         """Returns a generator containing all instances of the service's model.
         """
+        #TODO .objects() debe de recibir de parametro company y hay que sobreescribir el método objects en los
+        #modelos para que solo regreso los objetos de la compañia
         return self.__model__.objects()
 
     def get(self, id):
         """Returns an instance of the service's model with the specified id.
-        Returns `None` if an instance with the specified id does not exist.
+        Returns `None` if an instance wiquerysetth the specified id does not exist.
 
         :param id: the instance id
         """

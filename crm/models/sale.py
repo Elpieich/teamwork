@@ -1,6 +1,7 @@
 # -*- encoding:utf-8 -*-
 
 from ..core import db
+from crm.helpers import get_user_by_token
 
 
 STATUS = (
@@ -11,12 +12,20 @@ STATUS = (
 
 
 class Sale(db.Document):
+    name = db.StringField()
     customer = db.ReferenceField('Customer')
     owner = db.ReferenceField('Member')
     process = db.ReferenceField('Process')
     status = db.StringField(choices=STATUS)
     offers = db.ListField(db.ReferenceField('Offer'))
     team = db.ReferenceField('Team')
+    company = db.ReferenceField('Company')
+
+    def save(self, *args, **kwargs):
+        token = kwargs['auth_token']
+        user = get_user_by_token(token)
+        self.company = user.company
+        return super(Sale, self).save(*args, **kwargs)
 
     def get_customer(self):
         return self.customer

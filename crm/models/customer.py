@@ -1,9 +1,10 @@
 # -*- encoding:utf-8 -*-
 
 from ..core import db
+from . import User
 
 
-class Customer(db.Document):
+class Customer(User, db.Document):
     sales = db.ListField(db.ReferenceField('Sale'))
     business_name = db.StringField(max_length=140)
     rfc = db.StringField(max_length=13, min_length=10, unique=True)
