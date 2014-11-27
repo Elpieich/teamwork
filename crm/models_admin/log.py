@@ -2,7 +2,7 @@
 
 
 from crm.core import db
-from crm.models2.user import User
+from crm.models_admin.user import User
 import datetime
 import json
 

@@ -75,7 +75,6 @@ def update_company(company_id):
     admin.set_email(data['admin_email'])
     result = Company.save_object(compa, admin, None, edit=True)
     setattr(g, 'result', json.dumps(result))
-    print result
     return json.dumps(result)
 
 
