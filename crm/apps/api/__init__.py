@@ -86,7 +86,7 @@ def after_request(response):
         "uri": request.url,
         "data": response.data
     }
-    return json_util.dumps(response)
+    return response
 
 
         #     rv = fn(*args, **kwargs)
