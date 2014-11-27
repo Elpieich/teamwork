@@ -7,6 +7,7 @@
 """
 
 from itertools import chain
+from bson import json_util
 from flask import jsonify, current_app
 from flask_security.core import current_user
 from flask_security.utils import get_hmac, verify_password
@@ -47,6 +48,16 @@ class UserService(Service):
                 user = self.__model__.objects.get(email=self.__parameters__['email'])
                 if user:
                     if verify_password(self.__parameters__['password'], user.get_password()):
-                        return user.get_auth_token()
+                        data = {
+                            'token': user.get_auth_token(),
+                            'role': user.roles[0].get_name(),
+                            'name': user.name
+                        }
+                        return json_util.dumps(data)
             return current_app.unauthorized()
-        return user.get_auth_token()
+        data = {
+            'token': user.get_auth_token(),
+            'role': user.roles[0].get_name(),
+            'name': user.name
+        }
+        return json_util.dumps(data)
