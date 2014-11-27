@@ -8,15 +8,12 @@
 
 import json
 
-from flask import request, render_template, g, redirect, Blueprint
-from flask_security.core import current_user
+from flask import request, render_template, g, Blueprint
 
-from crm.models2.permission import Permission
-from crm.models2.role import Role
-from crm.models2.company import Company
-from crm.models2.admin import Admin
-from crm.models2.user import User
-from crm.models2.log import Log
+from crm.models_admin.role import Role
+from crm.models_admin.company import Company
+from crm.models_admin.admin import Admin
+from crm.models_admin.user import User
 from ..helpers import login_required
 
 
@@ -78,6 +75,7 @@ def update_company(company_id):
     admin.set_email(data['admin_email'])
     result = Company.save_object(compa, admin, None, edit=True)
     setattr(g, 'result', json.dumps(result))
+    print result
     return json.dumps(result)
 
 
@@ -89,4 +87,3 @@ def delete_company(company_id):
     result = Company.delete_object(company_id)
     setattr(g, 'result', result)
     return result
-    

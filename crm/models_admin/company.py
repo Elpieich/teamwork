@@ -14,7 +14,7 @@ class Company(db.Document):
         required=True,
         min_length=1,
         max_length=140)
-    admin = db.ReferenceField('Admin')
+    admin = db.ReferenceField(Admin)
     items = db.ListField(db.ReferenceField('Item'))
     customers = db.ListField(db.ReferenceField('Customer'))
 
@@ -70,7 +70,7 @@ class Company(db.Document):
             company.save(validate=True)
             r_co = company.to_json()
         except db.ValidationError as e:
-            r_co = json.dumps({'errors': e.to_dict()})
+            r_co = json.dumps({'errors saving admin': e.to_dict()})
 
         r_compa = json.loads(r_co)
         r_admin = json.loads(r_ad)

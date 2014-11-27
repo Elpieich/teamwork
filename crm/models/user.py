@@ -11,9 +11,8 @@ class User(db.Document, UserMixin):
     token = db.StringField()
     email = db.EmailField(required=True, unique=True)
     roles = db.ListField(db.ReferenceField('Role'), default=[])
-    company = db.ReferenceField('Company', required=True)
-    active = db.BooleanField()
-
+    company = db.ReferenceField('Company')
+    active = db.BooleanField(default=True)
     meta = {'allow_inheritance': True}
 
     def get_name(self):

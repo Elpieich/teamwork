@@ -6,7 +6,7 @@
     crm panel admin package
 """
 
-from flask import jsonify, render_template
+from flask import render_template
 from flask_security import MongoEngineUserDatastore
 from flask_security.core import current_user
 

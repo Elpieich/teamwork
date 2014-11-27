@@ -10,8 +10,8 @@ from flask import render_template, request, g, redirect, Blueprint
 from flask_security.utils import login_user, logout_user
 from flask_security.core import current_user
 
-from crm.models2.user import User
-from crm.models2.log import Log
+from crm.models_admin.user import User
+from crm.models_admin.log import Log
 from ..helpers import login_required
 
 

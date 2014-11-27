@@ -6,11 +6,9 @@
     crm panel admin log views
 """
 
-import json
-
 from flask import request, render_template, g, redirect, Blueprint
 
-from crm.models2.log import Log
+from crm.models_admin.log import Log
 from ..helpers import login_required
 
 
@@ -24,4 +22,3 @@ def logs():
     result = Log.get_all()
     setattr(g, 'result', result)
     return render_template('logs.html', logs=result)
-    

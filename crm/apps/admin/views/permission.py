@@ -6,17 +6,10 @@
     crm panel admin permission views
 """
 
-import json
-
 from flask import request, render_template, g, redirect, Blueprint
 from flask_security.core import current_user
 
-from crm.models2.permission import Permission
-from crm.models2.role import Role
-from crm.models2.company import Company
-from crm.models2.admin import Admin
-from crm.models2.user import User
-from crm.models2.log import Log
+from crm.models_admin.permission import Permission
 from ..helpers import login_required
 
 
