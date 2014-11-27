@@ -23,3 +23,6 @@ class Admin(User):
 
     def get_team_status(self, team):
         pass
+
+    def get_auth_token(self):
+        return super(Admin, self).get_auth_token()

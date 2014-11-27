@@ -34,3 +34,6 @@ class Customer(db.Document):
 
     def set_rfc(self, rfc):
         self.rfc = rfc
+
+    def get_auth_token(self):
+        return super(Customer, self).get_auth_token()

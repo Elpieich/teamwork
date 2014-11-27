@@ -1,6 +1,6 @@
 # -*- encoding:utf-8 -*-
 
-from flask_security.utils import encrypt_password, verify_password
+from flask_security.utils import get_hmac, verify_password
 from flask_security.core import UserMixin
 from itsdangerous import URLSafeTimedSerializer
 from flask_mail import Message
@@ -85,7 +85,7 @@ class User(db.Document, UserMixin):
 
     @staticmethod
     def encrypt(string):
-        return encrypt_password(string)
+        return get_hmac(string)
 
 
     @staticmethod
