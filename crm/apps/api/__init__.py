@@ -79,13 +79,15 @@ def output_format(response):
 
 def after_request(response):
     response.content_type = "application/json"
-    response.data = (response.status, response.data, )[response.status_code == 200]
-    response.data = {
+    response.data = (response.status, response.data, ) [response.status_code == 200]
+    data = {
         "status": response.status_code,
         "version": 1,
         "uri": request.url,
         "data": response.data
     }
+    response.data = json_util.dumps(data)
+
     return response
 
 
