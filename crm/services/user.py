@@ -48,5 +48,5 @@ class UserService(Service):
                 if user:
                     if verify_password(self.__parameters__['password'], user.get_password()):
                         return user.get_auth_token()
-            return current_app.login_manager.unauthorized()
+            return current_app.unauthorized()
         return user.get_auth_token()

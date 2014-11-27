@@ -69,8 +69,3 @@ def logout():
     setattr(g, 'result', 'logout')
     logout_user()
     return render_template('login.html')
-
-
-@bp.route("/dummy", methods=['GET'])
-def dummy():
-    pass

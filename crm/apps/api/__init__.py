@@ -8,10 +8,12 @@
 
 from functools import wraps
 from bson import json_util
+from werkzeug.exceptions import abort
 
 from flask import request
 from flask_security import MongoEngineUserDatastore
 from flask_security.decorators import _check_token
+
 
 from crm.core import db, security
 from crm.models import User, Role
@@ -61,8 +63,8 @@ class API:
 
     @staticmethod
     def unauthorized():
-        pass
         # werkzeug.exceptions.Unauthorized
+        abort(401)
 
 
 def output_format(response):
@@ -74,14 +76,15 @@ def output_format(response):
     print response
     return response
 
+
 def after_request(response):
     response.content_type = 'application/json'
-    response.data = (response.status, response.data, ) [response.status_code == 200] 
+    response.data = (response.status, response.data, )[response.status_code == 200]
     response.data = {
         'status': response.status_code,
         'version': 1,
-        'uri':request.url,
-        'data':response.data
+        'uri': request.url,
+        'data': response.data
     }
     return response
 
