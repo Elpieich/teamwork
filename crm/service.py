@@ -8,35 +8,32 @@ import werkzeug.exceptions
 from flask import request, current_app
 
 
+def route(bp, *args, **kwargs):
+    kwargs.setdefault('strict_slashes', False)
+    def decorator(fn):
+        @bp.route(*args, **kwargs)
+        @wraps(fn)
+        def wrapper(*args, **kwargs):
+            response = fn(*args, **kwargs)
+            return current_app.output_format(response)
+        return fn
+    return decorator
+
+
 class Service(object):
     """A :class:`Service` instance encapsulates common MongoEngine model
     operations in the context of a :class:`Flask` application.
     """
     __model__ = None
     __parameters__ = None
-    __exceptions__ = None
 
     def __init__(self, authenticate=False):
         if request.mimetype not in current_app.content_types:
-            self.__exception__ = werkzeug.exceptions.UnsupportedMediaType
-            return
+            raise werkzeug.exceptions.UnsupportedMediaType
         if not authenticate and not current_app.authenticated():
             current_app.unauthorized()
-            self.__exception__ = werkzeug.exceptions.Unauthorized
-            return
+            raise werkzeug.exceptions.Unauthorized
         self.__parameters__ = current_app.get_parameters(request)
-
-    @staticmethod
-    def route(bp, *args, **kwargs):
-        kwargs.setdefault('strict_slashes', False)
-        def decorator(fn):
-            @bp.route(*args, **kwargs)
-            @wraps(fn)
-            def wrapper(*args, **kwargs):
-                response = fn(*args, **kwargs)
-                return current_app.output_format(response)
-            return fn
-        return decorator
 
     def _isinstance(self, instance, raise_error=True):
         """Checks if the specified model instance matches the service's model.

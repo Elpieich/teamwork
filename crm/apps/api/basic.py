@@ -11,7 +11,6 @@ from flask import Blueprint, request
 from crm.services import user
 from crm.service import route
 
-
 bp = Blueprint('basic', __name__)
 
 

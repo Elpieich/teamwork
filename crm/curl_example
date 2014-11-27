@@ -2,4 +2,12 @@
 
 
 
-  curl -H "Content-Type: application/json"  '{"auth_token":"WyI1NDUyZTc5ZTE2Yzc3YTA0ODNmZDkyYmMiLCJlZjI4YWFmN2FjOTUzMjNhOWFkZDcxMzk0MmYyM2NiMSJd.BzSFFg.bAQ8rZdLulikyAEJd6bAkQm6rXg"}' http://localhost:5000/api/1/users
+  curl -H "Content-Type: application/json"  '{"auth_token":"WyI1NDQ0NjEzYjhkOTkxMjNmMDljMWZiNzYiLCJlMWRkN2FjOGM5YTEyNGFlN2YxZDVmZWU5NGU0MjBhOSJd.B1geuA.FyEshBD_oNFAbVeuAilTdPL79Uw"}' http://localhost:5000/api/1/users
+
+
+
+  curl '{"auth_token":"WyI1NDQ0NjEzYjhkOTkxMjNmMDljMWZiNzYiLCJlMWRkN2FjOGM5YTEyNGFlN2YxZDVmZWU5NGU0MjBhOSJd.B1geuA.FyEshBD_oNFAbVeuAilTdPL79Uw"}' http://localhost:5000/api/1/users
+
+
+
+    curl  -H "Content-Type: application/json"  http://localhost:5000/api/1/users/54765a0f8d9912256ca76952?auth_token=WyI1NDQ0NjEzYjhkOTkxMjNmMDljMWZiNzYiLCJlMWRkN2FjOGM5YTEyNGFlN2YxZDVmZWU5NGU0MjBhOSJd.B1geuA.FyEshBD_oNFAbVeuAilTdPL79Uw

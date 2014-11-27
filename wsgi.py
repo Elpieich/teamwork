@@ -16,8 +16,8 @@ admin = Admin()
 
 application = DispatcherMiddleware(
 	website.get_app(),
-    {'/api/1': api.get_app(),
-	 '/admin': admin.get_app()})
+    {'/api/1': api.app,
+	 '/admin': admin.app})
 
 if __name__ == "__main__":
     run_simple(

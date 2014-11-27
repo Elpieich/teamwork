@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
     crm.services.user
-    ~~~~~~~~~~~~~~~~~~~~
+    ~~~~~~~~~~~~~~~~~
 
     crm user service
 """

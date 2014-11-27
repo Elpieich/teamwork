@@ -11,7 +11,6 @@ from flask import Blueprint
 from crm.services import process, stage, task
 from crm.service import route
 
-from flask_security.decorators import auth_token_required
 
 bp = Blueprint('workflow', __name__)
 
@@ -21,7 +20,6 @@ bp = Blueprint('workflow', __name__)
 #   -----------
 #
 @route(bp, '/processes')
-#@auth_token_required
 def processes():
     """
     Regresa una lista con todos los procesos de una empresa

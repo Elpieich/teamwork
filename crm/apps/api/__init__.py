@@ -9,6 +9,7 @@
 from functools import wraps
 from bson import json_util
 
+from flask import request
 from flask_security import MongoEngineUserDatastore
 from flask_security.decorators import _check_token
 
@@ -20,7 +21,7 @@ from crm.middlewares import HTTPMethodOverrideMiddleware
 
 
 class API:
-    conetnt_types = ('application/json', )
+    content_types = ('application/json', )
     methods = ('GET', 'POST', 'PUT', 'DELETE', 'UPDATE', )
 
     def __init__(self, settings_override=None):
@@ -36,6 +37,17 @@ class API:
             register_blueprint=False)
         self.app.json_encoder = JSONEncoder
         self.app.wsgi_app = HTTPMethodOverrideMiddleware(self.app.wsgi_app)
+        self.app.content_types = self.content_types
+        self.app.methods = self.methods
+        self.app.get_parameters = self.get_parameters
+        self.app.authenticated = self.authenticated
+        self.app.unauthorized = self.unauthorized
+        self.app.output_format = output_format
+        self.app.after_request(after_request)
+        # Register custom error handlers
+        # app.errorhandler(OverholtError)(on_overholt_error)
+        # app.errorhandler(OverholtFormError)(on_overholt_form_error)
+        # app.errorhandler(404)(on_404)
 
     @classmethod
     def get_parameters(cls, request):
@@ -52,18 +64,26 @@ class API:
         pass
         # werkzeug.exceptions.Unauthorized
 
-    @staticmethod
-    def output_format(response):
-        sc = 200
-        if hasattr(response, 'to_json'):
-                response = response.to_json()
-        else:
-                response = json_util.dumps(response)
 
-        if isinstance(response, tuple):
-            sc = response[1]
-            response = response[0]
-        return response, sc
+def output_format(response):
+    print response
+    if hasattr(response, 'to_json'):
+        response = response.to_json()
+    else:
+        response = json_util.dumps(response)
+    print response
+    return response
+
+def after_request(response):
+    response.content_type = 'application/json'
+    response.data = (response.status, response.data, ) [response.status_code == 200] 
+    response.data = {
+        'status': response.status_code,
+        'version': 1,
+        'uri':request.url,
+        'data':response.data
+    }
+    return response
 
 
         #     rv = fn(*args, **kwargs)
@@ -84,32 +104,3 @@ class API:
         # return rv, sc
 
 
-
-# from flask import jsonify
-
-# class InvalidUsage(Exception):
-#     status_code = 400
-
-#     def __init__(self, message, status_code=None, payload=None):
-#         Exception.__init__(self)
-#         self.message = message
-#         if status_code is not None:
-#             self.status_code = status_code
-#         self.payload = payload
-
-#     def to_dict(self):
-#         rv = dict(self.payload or ())
-#         rv['message'] = self.message
-#         return rv
-        
-        
-# @app.errorhandler(InvalidUsage)
-# def handle_invalid_usage(error):
-#     response = jsonify(error.to_dict())
-#     response.status_code = error.status_code
-#     return response
-#     
-#     
-# @app.route('/foo')
-# def get_foo():
-#     raise InvalidUsage('This view is gone', status_code=410)

@@ -10,14 +10,14 @@ from flask import jsonify, render_template
 from flask_security import MongoEngineUserDatastore
 from flask_security.core import current_user
 
-from crm.core import db, toolbar, mail, security, login_manager
+from crm.core import db, toolbar, mail, security
 from crm.models import User, Role
 from crm.factory import Factory
 from crm.helpers import JSONEncoder
 
 
 class Admin:
-    conetnt_types = ('application/json', )
+    content_types = ('application/json', )
     methods = ('GET', 'POST', 'PUT', 'DELETE', )
 
     def __init__(self, settings_override=None):
@@ -30,10 +30,13 @@ class Admin:
         toolbar.init_app(self.app)
         mail.init_app(self.app)
         security.init_app(
-            self.__app__,
+            self.app,
             MongoEngineUserDatastore(db, User, Role),
             register_blueprint=False)
         self.app.json_encoder = JSONEncoder
+        self.app.content_types = self.content_types
+        self.app.methods = self.methods
+
 
     @classmethod
     def get_parameters(cls, request):
