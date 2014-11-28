@@ -8,6 +8,7 @@ from flask import Blueprint, current_app
 from flask.json import JSONEncoder as BaseJSONEncoder
 from werkzeug.local import LocalProxy
 
+from crm.core import db
 
 _security = LocalProxy(lambda: current_app.extensions['security'])
 
@@ -51,6 +52,12 @@ def decallmethods(decorator):
             setattr(cls, name, decorator(m))
         return cls
     return dectheclass
+
+
+class FilterByCompanyQuerySet(db.QuerySet):
+
+    def get_awesome(self):
+        return self.filter(awesome=True)
 
 
 class JSONEncoder(BaseJSONEncoder):

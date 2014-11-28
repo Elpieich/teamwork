@@ -1,8 +1,9 @@
 # -*- encoding:utf-8 -*-
 
+import json
+
 from crm.core import db
 from .permission import Permission
-import json
 
 
 class Role(db.Document):
@@ -32,9 +33,7 @@ class Role(db.Document):
         return self.permissions
 
     def add_permissions(self, perms):
-        """
-            Get all the permissions
-        
+        """Get all the permissions
             perms: json object
         """
         

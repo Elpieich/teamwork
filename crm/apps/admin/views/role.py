@@ -8,14 +8,22 @@
 
 import json
 
-from flask import request, render_template, g, redirect, Blueprint
+from flask import request, render_template, g, Blueprint
+from flask_security.core import current_user
 
 from crm.models_admin.permission import Permission
 from crm.models_admin.role import Role
-from ..helpers import login_required
+from ..helpers import login_required, save_activity
 
 
 bp = Blueprint('role', __name__, template_folder='templates')
+
+
+@bp.after_request
+def check_response(response):
+    """Save in the activity log the request result
+    """
+    return save_activity(response)
 
 
 @bp.route('/roles', methods=['GET'])
@@ -61,7 +69,7 @@ def update_role(role_id):
     """
     data = request.get_json()
     r = Role.objects.get(id=role_id)
-    r.set_name(data['name'])
+    # r.set_name(data['name'])
     r.set_description(data['description'])
     perms = json.loads(data['permissions'])
     result = Role.save_object(r, perms)

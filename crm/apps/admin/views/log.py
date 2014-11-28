@@ -7,12 +7,21 @@
 """
 
 from flask import request, render_template, g, redirect, Blueprint
+from flask_security.core import current_user
 
 from crm.models_admin.log import Log
-from ..helpers import login_required
+from ..helpers import login_required, save_activity
 
 
 bp = Blueprint('log', __name__, template_folder='templates')
+
+
+@bp.after_request
+def check_response(response):
+    """Save in the activity log the request result
+    """
+    return save_activity(response)
+
 
 @bp.route('/logs', methods=['GET'])
 @login_required

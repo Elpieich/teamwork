@@ -1,8 +1,9 @@
 # -*- encoding:utf-8 -*-
 
+import json
+
 from crm.core import db
 from .admin import Admin
-import json
 
 
 class Company(db.Document):

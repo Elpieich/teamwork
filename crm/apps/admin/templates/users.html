@@ -25,6 +25,8 @@
 {% block content %}
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
           <h1 class="page-header"> API Admin Users </h1>
+          <div class="row" id="alerta">
+          </div>
           <div class="row">
             <div class="col-md-2">
               <button type="button" class="btn btn-primary" id="btn-new">
@@ -32,7 +34,6 @@
               </button>
             </div>
           </div>
-
           <div class="table-responsive">
             <table class="table table-striped" id="results-table">
               <thead>
@@ -217,22 +218,32 @@
                 editId = '-1';
             });
 
-            /* Get company to delete */
+            /* Get user to delete */
             $( '#results-table' ).on( 'click', 'tr td button[name=btn-minus]', function() {
                 // Only show delete modal
                 deleteId = $( this ).attr( 'oid' );
                 $( '#deleteModal' ).modal( 'show' );
             });
 
-            /* Delete company */
+            /* Delete user */
             $( '#btn-delete' ).click( function(){
                 $.ajax({
                     type: 'DELETE',
                     url: url.concat( '/' + deleteId ),
                     success: function ( data ) {
-                        $( '#tr-' + deleteId ).remove();
-                        $( '#deleteModal' ).modal( 'hide' );
-                        deleteId = '';
+                        var json = $.parseJSON( data );
+                        if( $.inArray('errors', Object.keys(json)) != -1 ){
+                            $( '#alerta').append(
+                                '<div class="alert alert-danger alert-dismissible" role="alert">' +
+                                '<button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>' +
+                                '<strong>Warning!</strong> '+ json['errors'] +' </div>'
+                            );
+                            $( '#deleteModal' ).modal( 'hide' );
+                        } else {
+                            $( '#tr-' + deleteId ).remove();
+                            $( '#deleteModal' ).modal( 'hide' );
+                            deleteId = '';
+                        }
                     }
                 });
             });

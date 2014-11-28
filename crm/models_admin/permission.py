@@ -1,7 +1,8 @@
 # -*- encoding:utf-8 -*-
 
-from crm.core import db
 import json
+
+from crm.core import db
 
 
 class Permission(db.Document):

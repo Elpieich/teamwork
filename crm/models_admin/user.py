@@ -1,13 +1,15 @@
 # -*- encoding:utf-8 -*-
 
-from flask_security.utils import get_hmac, verify_password
-from flask_security.core import UserMixin
-from itsdangerous import URLSafeTimedSerializer
-from flask_mail import Message
-from crm.core import db, mail
-from .role import Role
-
 import json
+from itsdangerous import URLSafeTimedSerializer
+
+from flask_mail import Message
+from flask_security.core import UserMixin, current_user
+from flask_security.utils import get_hmac, verify_password
+
+from .role import Role
+from crm.core import db, mail
+
 
 login_serializer = URLSafeTimedSerializer('FLAKSDJFdLKJ98798}{}{}KAJSDHFK22a')
 
@@ -129,8 +131,11 @@ class User(db.Document, UserMixin):
     @staticmethod
     def delete_object(id):
         try:
-            User.objects.get(id=id).delete()
-            return json.dumps({'success': 'The element was deleted'})
+            if str(current_user.id) == id:
+                return json.dumps({'errors': 'You cant delete your own user'})
+            else:
+                User.objects.get(id=id).delete()
+                return json.dumps({'success': 'The element was deleted'})
         except db.ValidationError as e:
             return json.dumps({'errors': e.to_dict()})
 

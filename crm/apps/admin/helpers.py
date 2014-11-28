@@ -2,8 +2,11 @@
 
 from functools import wraps
 
-from flask import render_template
+from flask import render_template, request, g
 from flask_security.core import current_user
+
+from crm.models_admin.log import Log
+from crm.models_admin.user import User
 
 
 def login_required(func):
@@ -25,3 +28,17 @@ def unauthorized():
              "or your browser doesn't understand how to supply the credentials required."
 
     return render_template('login.html', errors=errors)
+
+
+def save_activity(response):
+    """Save in the activity log the request result
+    """
+    print current_user.is_active()
+    if current_user.is_active():
+        Log.save_object(
+            request.remote_addr,
+            request.url,
+            request.method,
+            User.objects.get(id=current_user.get_id()),
+            getattr(g, 'result'))
+    return response

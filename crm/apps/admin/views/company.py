@@ -9,15 +9,23 @@
 import json
 
 from flask import request, render_template, g, Blueprint
+from flask_security.core import current_user
 
 from crm.models_admin.role import Role
 from crm.models_admin.company import Company
 from crm.models_admin.admin import Admin
 from crm.models_admin.user import User
-from ..helpers import login_required
+from ..helpers import login_required, save_activity
 
 
 bp = Blueprint('company', __name__, template_folder='templates')
+
+
+@bp.after_request
+def check_response(response):
+    """Save in the activity log the request result
+    """
+    return save_activity(response)
 
 
 @bp.route('/companies', methods=['GET'])

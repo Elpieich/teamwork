@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
+import json
+import datetime
 
 from crm.core import db
 from crm.models_admin.user import User
-import datetime
-import json
 
 
 class Log(db.Document):
