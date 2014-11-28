@@ -5,7 +5,9 @@ from itertools import chain
 from pprint import pprint 
 
 import werkzeug.exceptions
-from flask import request, current_app
+from flask import request, current_app, g
+
+from crm.models import User
 
 
 def route(bp, *args, **kwargs):
@@ -32,7 +34,6 @@ class Service(object):
             raise werkzeug.exceptions.UnsupportedMediaType
         if not authenticate and not current_app.authenticated():
             current_app.unauthorized()
-            raise werkzeug.exceptions.Unauthorized
         self.__parameters__ = current_app.get_parameters(request)
 
     def _isinstance(self, instance, raise_error=True):
@@ -71,7 +72,8 @@ class Service(object):
         """
         #TODO .objects() debe de recibir de parametro company y hay que sobreescribir el método objects en los
         #modelos para que solo regreso los objetos de la compañia
-        return self.__model__.objects()
+        company = User.objects.get(id=g.identity.id).company
+        return self.__model__.objects.filter(company=company)
 
     def get(self, id):
         """Returns an instance of the service's model with the specified id.

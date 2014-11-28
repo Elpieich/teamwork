@@ -8,7 +8,7 @@
 
 from functools import wraps
 from bson import json_util
-from werkzeug.exceptions import abort
+import werkzeug.exceptions 
 
 from flask import request
 from flask_security import MongoEngineUserDatastore
@@ -62,32 +62,29 @@ class API:
 
     @staticmethod
     def unauthorized():
-        # werkzeug.exceptions.Unauthorized
-        abort(401)
+        raise werkzeug.exceptions.Unauthorized
 
 
 def output_format(response):
-    print response
     if hasattr(response, 'to_json'):
         response = response.to_json()
     else:
         response = json_util.dumps(response)
-    print response
-    return response
+    return response, 200
 
 
 def after_request(response):
     response.content_type = "application/json"
     response.data = (response.status, response.data, ) [response.status_code == 200]
-    data = {
+    response.data = {
         "status": response.status_code,
         "version": 1,
         "uri": request.url,
         "data": response.data
     }
-    response.data = json_util.dumps(data)
-
     return response
+
+
 
 
         #     rv = fn(*args, **kwargs)

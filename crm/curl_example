@@ -1,13 +1,17 @@
- curl -H "Content-Type: application/json" -X POST -d '{"email":"grevych@gmail.com", "password":"gerardoReyes"}' http://localhost:5000/api/1/auth
+ curl -H "Content-Type: application/json" -X POST -d '{"email":"balejandroc@gmail.com", "password":"12341234"}' http://localhost:5000/api/1/auth
 
 
 
-  curl -H "Content-Type: application/json"  '{"auth_token":"WyI1NDQ0NjEzYjhkOTkxMjNmMDljMWZiNzYiLCJlMWRkN2FjOGM5YTEyNGFlN2YxZDVmZWU5NGU0MjBhOSJd.B1geuA.FyEshBD_oNFAbVeuAilTdPL79Uw"}' http://localhost:5000/api/1/users
+  curl -H "Content-Type: application/json"  {"auth_token":"WyI1NDQ0NjEzYjhkOTkxMjNmMDljMWZiNzYiLCJlMWRkN2FjOGM5YTEyNGFlN2YxZDVmZWU5NGU0MjBhOSJd.B1lJIA.hoA7NEWC4oeXUs3ABQadRmpu__M"}' http://localhost:5000/api/1/users
 
 
 
-  curl '{"auth_token":"WyI1NDQ0NjEzYjhkOTkxMjNmMDljMWZiNzYiLCJlMWRkN2FjOGM5YTEyNGFlN2YxZDVmZWU5NGU0MjBhOSJd.B1geuA.FyEshBD_oNFAbVeuAilTdPL79Uw"}' http://localhost:5000/api/1/users
+  curl '{"auth_token":"WyI1NDQ0NjEzYjhkOTkxMjNmMDljMWZiNzYiLCJlMWRkN2FjOGM5YTEyNGFlN2YxZDVmZWU5NGU0MjBhOSJd.B1lJIA.hoA7NEWC4oeXUs3ABQadRmpu__M"}' http://localhost:5000/api/1/users
 
 
 
     curl  -H "Content-Type: application/json"  http://localhost:5000/api/1/users/54765a0f8d9912256ca76952?auth_token=WyI1NDQ0NjEzYjhkOTkxMjNmMDljMWZiNzYiLCJlMWRkN2FjOGM5YTEyNGFlN2YxZDVmZWU5NGU0MjBhOSJd.B1geuA.FyEshBD_oNFAbVeuAilTdPL79Uw
+
+
+
+    WyI1NDQ0NjEzYjhkOTkxMjNmMDljMWZiNzYiLCJlMWRkN2FjOGM5YTEyNGFlN2YxZDVmZWU5NGU0MjBhOSJd.B1lJIA.hoA7NEWC4oeXUs3ABQadRmpu__M

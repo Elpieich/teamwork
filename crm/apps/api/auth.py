@@ -6,7 +6,7 @@
     Auth endpoints
 """
 
-from flask import Blueprint
+from flask import Blueprint, current_app
 
 from crm.services import user
 
@@ -19,4 +19,4 @@ def auth():
     """
     """
     service = user(authenticate=True)
-    return service.authenticate()
+    return current_app.output_format(service.authenticate())
