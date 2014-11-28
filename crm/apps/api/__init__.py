@@ -94,10 +94,7 @@ def after_request(response):
         #     else:
         #         rv = json_util.dumps(rv)
 
-        # # except db.DoesNotExist:
-        # #     raise werkzeug.exceptions.ImATeapot
-        # # except db.ValidationError:
-        # #     raise werkzeug.exceptions.ImATeapot
+
 
         # if isinstance(rv, tuple):
         #     sc = rv[1]

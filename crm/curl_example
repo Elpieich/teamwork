@@ -2,7 +2,7 @@
 
 
 
-  curl -H "Content-Type: application/json"  {"auth_token":"WyI1NDQ0NjEzYjhkOTkxMjNmMDljMWZiNzYiLCJlMWRkN2FjOGM5YTEyNGFlN2YxZDVmZWU5NGU0MjBhOSJd.B1lJIA.hoA7NEWC4oeXUs3ABQadRmpu__M"}' http://localhost:5000/api/1/users
+  curl -H "Content-Type: application/json" -X POST -d '{"auth_token":"WyI1NDQ0NjEzYjhkOTkxMjNmMDljMWZiNzYiLCJlMWRkN2FjOGM5YTEyNGFlN2YxZDVmZWU5NGU0MjBhOSJd.B1lKEA.J0GnvwsAD_ASX7lVpKIqQ9DWINE"}' http://localhost:5000/api/1/user 
 
 
 
@@ -15,3 +15,24 @@
 
 
     WyI1NDQ0NjEzYjhkOTkxMjNmMDljMWZiNzYiLCJlMWRkN2FjOGM5YTEyNGFlN2YxZDVmZWU5NGU0MjBhOSJd.B1lJIA.hoA7NEWC4oeXUs3ABQadRmpu__M
+
+
+
+    {'status': 200, 'version': 1, 'data': 
+    '[
+    {"_id": {"$oid": "5444613b8d99123f09c1fb76"}, 
+      "name": "Alejandro Becerra", 
+      "roles": [{"$oid": "544299798d9912160ebd162e"}], 
+      "_cls": "User", 
+      "active": true, 
+      "password": "8G4fiomXTLxy7rjuuZ0UpY+TNdGwxXmWPZVxB8o9akJ3V6uGGYuAPFIxUzuyrd7bq/v1Zm47g+VHrPPq9YZaOg==", 
+      "email": "balejandroc@gmail.com"}, 
+    {"password": "sajyKCI5YyoNmSLZN6o+wYQ3N3sXAQZbHvExeQ/W84pC1OS/xqf8z4jxmuz2nZa7G5DDuffJlHKk3whq5lgnkA==", 
+     "name": "Diego Serrano \\u00c1vila", 
+     "roles": [{"$oid": "544299798d9912160ebd162e"}], 
+     "token": "WyJOb25lIiwic2FqeUtDSTVZeW9ObVNMWk42byt3WVEzTjNzWEFRWmJIdkV4ZVEvVzg0cEMxT1MveHFmOHo0anhtdXoyblphN0c1RER1ZmZKbEhLazN3aHE1bGdua0E9PSJd.B1hVUA.4-vpBR8b4Gyi3NpFnREJLKVPgSQ", 
+     "_cls": "User", 
+     "active": true, 
+     "_id": {"$oid": "5476c3d08d9912537ce3ad1e"}, 
+     "email": "diego@brounie.com"}]', 
+   'uri': u'http://localhost:5000/api/1/users?auth_token=WyI1NDQ0NjEzYjhkOTkxMjNmMDljMWZiNzYiLCJlMWRkN2FjOGM5YTEyNGFlN2YxZDVmZWU5NGU0MjBhOSJd.B1lKEA.J0GnvwsAD_ASX7lVpKIqQ9DWINE'}

@@ -8,6 +8,7 @@ import werkzeug.exceptions
 from flask import request, current_app, g
 
 from crm.models import User
+from crm.core import db
 
 
 def route(bp, *args, **kwargs):
@@ -16,7 +17,12 @@ def route(bp, *args, **kwargs):
         @bp.route(*args, **kwargs)
         @wraps(fn)
         def wrapper(*args, **kwargs):
-            response = fn(*args, **kwargs)
+            try:    
+                response = fn(*args, **kwargs)
+            except db.DoesNotExist as exception:
+                response = str(exception)
+            except db.ValidationError as exception:
+                response = str(exception)
             return current_app.output_format(response)
         return fn
     return decorator

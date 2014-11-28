@@ -9,6 +9,7 @@
 from flask import Blueprint, current_app
 
 from crm.services import user
+from crm.core import db
 
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
@@ -19,4 +20,10 @@ def auth():
     """
     """
     service = user(authenticate=True)
-    return current_app.output_format(service.authenticate())
+    try:    
+        response = service.authenticate()
+    except db.DoesNotExist as exception:
+    	response = str(exception)
+    except db.ValidationError as exception:
+        response = str(exception)
+    return current_app.output_format(response)
