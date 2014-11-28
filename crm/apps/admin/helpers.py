@@ -33,7 +33,6 @@ def unauthorized():
 def save_activity(response):
     """Save in the activity log the request result
     """
-    print current_user.is_active()
     if current_user.is_active():
         Log.save_object(
             request.remote_addr,
