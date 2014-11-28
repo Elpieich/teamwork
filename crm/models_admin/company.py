@@ -109,7 +109,9 @@ class Company(db.Document):
     def delete_object(id):
         try:
             c = Company.objects.get(id=id)
-            Admin.delete_object(c.get_admin().id)
+            admin = c.get_admin()
+            if admin:
+                Admin.delete_object(admin.id)
             c.delete()
             return json.dumps({'success': 'The element was deleted'})
         except db.ValidationError as e:

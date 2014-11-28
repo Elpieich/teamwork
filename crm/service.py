@@ -75,9 +75,8 @@ class Service(object):
 
     def all(self):
         """Returns a generator containing all instances of the service's model.
+        Filter by the user company
         """
-        #TODO .objects() debe de recibir de parametro company y hay que sobreescribir el método objects en los
-        #modelos para que solo regreso los objetos de la compañia
         company = User.objects.get(id=g.identity.id).company
         return self.__model__.objects.filter(company=company)
 

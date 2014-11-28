@@ -10,7 +10,7 @@ from flask import render_template
 from flask_security import MongoEngineUserDatastore
 from flask_security.core import current_user
 
-from crm.core import db, toolbar, mail, security
+from crm.core import db, mail, security
 from crm.models import User, Role
 from crm.factory import Factory
 from crm.helpers import JSONEncoder
@@ -27,7 +27,6 @@ class Admin:
             __path__,
             settings_override)
         db.init_app(self.app)
-        toolbar.init_app(self.app)
         mail.init_app(self.app)
         security.init_app(
             self.app,

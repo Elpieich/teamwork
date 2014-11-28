@@ -70,18 +70,19 @@ def output_format(response):
         response = response.to_json()
     else:
         response = json_util.dumps(response)
-    return response, 200
+    return response
 
 
 def after_request(response):
-    response.content_type = "application/json"
+    response.content_type = 'application/json'
     response.data = (response.status, response.data, ) [response.status_code == 200]
-    response.data = {
-        "status": response.status_code,
-        "version": 1,
-        "uri": request.url,
-        "data": response.data
+    data = {
+        'status': response.status_code,
+        'version': 1,
+        'uri': request.url,
+        'data': response.data
     }
+    response.data = json_util.dumps(data)
     return response
 
 
