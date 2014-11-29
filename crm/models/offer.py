@@ -6,7 +6,7 @@ from crm.helpers import get_user_by_token
 class Offer(db.Document):
     items = db.ListField(db.ReferenceField('Item'))
     discount = db.FloatField()
-    start_date = db.DateTimeField()
+    start_date = db.DateTimeField(default=datetime.datetime.now)
     end_date = db.DateTimeField()
     accepted = db.BooleanField(default=False)
     comments = db.StringField(max_length=255)
