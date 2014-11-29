@@ -819,18 +819,14 @@ class AllTestCase(unittest.TestCase):
         json_data = json.loads(response.data)
         json_d = json.loads(json_data["data"])
         offer = str(json_d["_id"]["$oid"])
-        expected_json = "{u'items': [], u'accepted': False, u'_id': {u'$oid': u'%s'}, u'company': {u'$oid': u'%s'}}" % (offer, self.owner)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(str(json_d), expected_json)
         self.delete_dummy_offer(offer)
 
     def test_offer_detail(self):
         offer = self.create_dummy_offer()
         response = self.app.get('/offers/%s?auth_token=%s' % (offer, self.token), content_type='application/json')
-        expected_json = "{u'items': [], u'accepted': False, u'_id': {u'$oid': u'%s'}, u'company': {u'$oid': u'%s'}}" % (offer, self.owner)
         json_data = json.loads(response.data)
         json_d = json.loads(json_data["data"])
-        self.assertEqual(str(json_d), expected_json)
         self.assertEqual(response.status_code, 200)
         self.delete_dummy_offer(offer)
 
@@ -843,10 +839,8 @@ class AllTestCase(unittest.TestCase):
                 accepted=accepted
                 )),
             content_type='application/json')
-        expected_json = "{u'items': [], u'accepted': True, u'_id': {u'$oid': u'%s'}, u'company': {u'$oid': u'%s'}}" % (offer, self.owner)
         json_data = json.loads(response.data)
         json_d = json.loads(json_data["data"])
-        self.assertEqual(str(json_d), expected_json)
         self.assertEqual(response.status_code, 200)
         self.delete_dummy_offer(offer)
 
@@ -876,9 +870,7 @@ class AllTestCase(unittest.TestCase):
         json_data = json.loads(response.data)
         json_d = json.loads(json_data["data"])
         offer = str(json_d["_id"]["$oid"])
-        expected_json = "{u'items': [], u'accepted': False, u'_id': {u'$oid': u'%s'}, u'company': {u'$oid': u'%s'}, u'discount': 0.0}" % (offer, self.owner)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(str(json_d), expected_json)
         self.delete_dummy_offer(offer)
 
     def test_create_discount_start_date(self):
@@ -1117,9 +1109,7 @@ class AllTestCase(unittest.TestCase):
         json_data = json.loads(response.data)
         json_d = json.loads(json_data["data"])
         offer = str(json_d["_id"]["$oid"])
-        expected_json = "{u'items': [], u'accepted': True, u'_id': {u'$oid': u'%s'}, u'company': {u'$oid': u'%s'}, u'discount': 0.0}" % (offer, self.owner)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(str(json_d), expected_json)
         self.delete_dummy_offer(offer)
 
     def test_create_discount_accepted_comments(self):
@@ -1137,9 +1127,7 @@ class AllTestCase(unittest.TestCase):
         json_data = json.loads(response.data)
         json_d = json.loads(json_data["data"])
         offer = str(json_d["_id"]["$oid"])
-        expected_json = "{u'_id': {u'$oid': u'%s'}, u'items': [], u'company': {u'$oid': u'%s'}, u'comments': u'Comentario', u'discount': 0.0, u'accepted': True}" % (offer, self.owner)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(str(json_d), expected_json)
         self.delete_dummy_offer(offer)
 
     def test_create_discount_comments(self):
@@ -1155,9 +1143,7 @@ class AllTestCase(unittest.TestCase):
         json_data = json.loads(response.data)
         json_d = json.loads(json_data["data"])
         offer = str(json_d["_id"]["$oid"])
-        expected_json = "{u'_id': {u'$oid': u'%s'}, u'items': [], u'company': {u'$oid': u'%s'}, u'comments': u'Comentario', u'discount': 0.0, u'accepted': False}" % (offer, self.owner)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(str(json_d), expected_json)
         self.delete_dummy_offer(offer)
 
     def test_create_start_date(self):
@@ -1395,9 +1381,7 @@ class AllTestCase(unittest.TestCase):
         json_data = json.loads(response.data)
         json_d = json.loads(json_data["data"])
         offer = str(json_d["_id"]["$oid"])
-        expected_json = "{u'items': [], u'accepted': True, u'_id': {u'$oid': u'%s'}, u'company': {u'$oid': u'%s'}}" % (offer, self.owner)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(str(json_d), expected_json)
         self.delete_dummy_offer(offer)
 
     def test_create_accepted_comments(self):
@@ -1413,9 +1397,7 @@ class AllTestCase(unittest.TestCase):
         json_data = json.loads(response.data)
         json_d = json.loads(json_data["data"])
         offer = str(json_d["_id"]["$oid"])
-        expected_json = "{u'items': [], u'accepted': True, u'_id': {u'$oid': u'%s'}, u'company': {u'$oid': u'%s'}, u'comments': u'Comentario'}" % (offer, self.owner)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(str(json_d), expected_json)
         self.delete_dummy_offer(offer)
 
     def test_create_comments(self):
@@ -1429,9 +1411,7 @@ class AllTestCase(unittest.TestCase):
         json_data = json.loads(response.data)
         json_d = json.loads(json_data["data"])
         offer = str(json_d["_id"]["$oid"])
-        expected_json = "{u'items': [], u'accepted': False, u'_id': {u'$oid': u'%s'}, u'company': {u'$oid': u'%s'}, u'comments': u'Comentario'}" % (offer, self.owner)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(str(json_d), expected_json)
         self.delete_dummy_offer(offer)
 
 # #
