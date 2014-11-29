@@ -4,18 +4,9 @@ from ..core import db
 from crm.helpers import get_user_by_token
 
 
-STATUS = (
-    ('A', 'Abierta', ),
-    ('B', 'En espera', ),
-    ('C', 'Cancelada', ),
-    ('D', 'Cerrada'), )
-
-
 class Process(db.Document):
     name = db.StringField(max_length=40, required=True)
     description = db.StringField(max_length=140, required=True)
-    template = db.ReferenceField('ProcessTemplate')
-    status = db.StringField(choices=STATUS)
     stages = db.ListField(db.ReferenceField('Stage'))
     company = db.ReferenceField('Company')
 

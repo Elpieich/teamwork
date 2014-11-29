@@ -14,6 +14,19 @@ from crm.service import route
 bp = Blueprint('basic', __name__)
 
 
+@bp.route('/test', strict_slashes=False)
+def test():
+    """
+    """
+    import subprocess
+    process = subprocess.Popen(
+        ['python', 'unit_test.py'], 
+        stdout=subprocess.PIPE, 
+        stderr=subprocess.PIPE)
+    out, err = process.communicate()
+    return err, 200
+
+
 #
 #    USERS
 #   -------

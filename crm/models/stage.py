@@ -3,6 +3,12 @@
 from ..core import db
 from crm.helpers import get_user_by_token
 
+STATUS = (
+    ('A', 'Abierta', ),
+    ('B', 'En espera', ),
+    ('C', 'Cancelada', ),
+    ('D', 'Cerrada'), )
+
 
 class Stage(db.Document):
     name = db.StringField(max_length=40, required=True)
@@ -10,7 +16,7 @@ class Stage(db.Document):
     process = db.ReferenceField('Process')
     template = db.ReferenceField('StageTemplate')
     manager = db.ReferenceField('User')
-    status = db.ReferenceField('StageStatus')
+    status = db.StringField(choices=STATUS)
     tasks = db.ListField(db.ReferenceField('Task'))
     company = db.ReferenceField('Company')
 
