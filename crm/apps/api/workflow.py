@@ -25,8 +25,6 @@ def processes():
     """
     Regresa una lista con todos los procesos de una empresa
     """
-
-    print current_user
     service = process()
     return service.all()
 

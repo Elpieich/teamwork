@@ -11,6 +11,7 @@ class Task(db.Document):
     owner = db.ReferenceField('User')
     manager = db.ReferenceField('User')
     progress = db.IntField(max_value=100, min_value=0)
+    company = db.ReferenceField('Company')
 
     def save(self, *args, **kwargs):
         token = kwargs['auth_token']

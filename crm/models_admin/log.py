@@ -45,4 +45,5 @@ class Log(db.Document):
 
             log.save()
         except db.ValidationError as e:
-            print 'Something went wrong in the log', e
+            # print 'Something went wrong in the log', e
+            pass

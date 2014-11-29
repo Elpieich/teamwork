@@ -74,7 +74,6 @@ class Role(db.Document):
             role.add_permissions(permissions)
             return role.to_json()
         except db.ValidationError as e:
-            print e.to_dict()
             return json.dumps({'errors': e.to_dict()})
 
     @staticmethod

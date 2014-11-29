@@ -96,7 +96,6 @@ class User(db.Document, UserMixin):
         user.generate_auth_token()
         string = user.get_token()
         password = login_serializer.dumps([string[:5], string[5:10]])
-        # print 'generated password: ', password[:9]
         return password[:9]
 
     @staticmethod
